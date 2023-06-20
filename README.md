@@ -1,6 +1,6 @@
 # pymdocs
 
-Simple package to generate Code Reference from source in Markdown
+A simple package to generate Code Reference from source in Markdown
 
 ## Installation
 
@@ -19,3 +19,4 @@ python -m pymdocs ./pymdocs "./docs/Code Reference.md"
 - Using only standard library features
 - Generating source links to lines of code
 - Markdown formatting
+- Google Style docstrings parsing

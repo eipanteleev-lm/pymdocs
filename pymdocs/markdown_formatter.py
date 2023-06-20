@@ -1,14 +1,14 @@
 import os
 from pathlib import Path
 
-import markdown_constructor as md
-from parsers.ast import (
+import pymdocs.markdown_constructor as md
+from pymdocs.parsers.ast import (
     ClassDefinition,
     DocElement,
     FunctionDefinition,
     ModuleDefinition
 )
-from parsers.docstring.google import Docstring
+from pymdocs.parsers.docstring.google import Docstring
 
 
 class Formatter:

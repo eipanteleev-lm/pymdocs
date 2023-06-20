@@ -1,7 +1,7 @@
 import ast
 import os
 
-import parsers.docstring.google as doc
+import pymdocs.parsers.docstring.google as doc
 
 BINOPS = {
     ast.BitOr: '|'

@@ -1,9 +1,8 @@
 import argparse
-import os
 from pathlib import Path
 
-from markdown_formatter import Formatter, format_package_md
-from parsers.ast import parse
+from pymdocs.markdown_formatter import Formatter, format_package_md
+from pymdocs.parsers.ast import parse
 
 
 class Pymdocs:
@@ -17,25 +16,6 @@ class Pymdocs:
         self.source_path = source_path
         self.doc_path = doc_path
         self.formatter = formatter
-
-    @staticmethod
-    def _make_path(base: Path, parts: list[str]) -> Path:
-        """
-        Makes defined folders
-
-        Args:
-            base: pathlib.Path, base existing path
-            parts: list, nested folders needed to create
-
-        Returns: pathlib.Path, created folder path
-        """
-        path = base
-        for part in parts:
-            path = path / part
-            if not path.exists():
-                os.mkdir(path)
-
-        return path
 
     @staticmethod
     def _save(md: str, path: Path):
@@ -100,7 +80,7 @@ class Pymdocs:
             self._save(package_md.render(), doc_path)
 
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(

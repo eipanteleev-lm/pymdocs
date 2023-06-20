@@ -745,7 +745,7 @@ Class for Latex formulas
 
 ## Classes
 
-### *class* `pymdocs.cli.Pymdocs` [[source]](../pymdocs/cli.py#L9)
+### *class* `pymdocs.cli.Pymdocs` [[source]](../pymdocs/cli.py#L8)
 
 
 
@@ -753,9 +753,15 @@ Class for Latex formulas
 
 #### Methods
 
-> **pymdocs.cli.Pymdocs.doc**(*self: Any*) -> *Any* [[source]](../pymdocs/cli.py#L45)
+> **pymdocs.cli.Pymdocs.doc**(*self: Any*) -> *Any* [[source]](../pymdocs/cli.py#L25)
 
 
+
+
+
+## Functions
+
+> **pymdocs.cli.main**() -> *Any* [[source]](../pymdocs/cli.py#L83)
 
 
 

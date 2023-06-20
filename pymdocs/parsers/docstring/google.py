@@ -404,25 +404,25 @@ def parse_section(text: str, section_type: str) -> DocstringSection:
     """
 
     element_pattern = SECTION_ELEMENT_PATTERN_MAP[section_type]
-    Section = SECTION_CLASS_MAP[section_type]
-    SectionElement = SECTION_ELEMENT_CLASS_MAP[section_type]
+    section = SECTION_CLASS_MAP[section_type]
+    section_element = SECTION_ELEMENT_CLASS_MAP[section_type]
     attributes = []
 
     for group, text, _, _ in iter_split(element_pattern, text):
         description = inspect.cleandoc(text)
         if section_type in SINGLE_SECTIONS:
             attributes.append(
-                SectionElement(description=description)
+                section_element(description=description)
             )
         elif group is not None:
             attributes.append(
-                SectionElement(
+                section_element(
                     description=description,
                     **group.groupdict()
                 )
             )
 
-    return Section(
+    return section(
         attributes=attributes
     )
 

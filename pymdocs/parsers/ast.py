@@ -8,15 +8,26 @@ BINOPS = {
 }
 
 
-class DocElement:
-    """Base class for Python AST element wrapper"""
+class AstWrapper:
+    """
+    Base class for Python AST element wrapper
+
+    Attributes:
+        ast_element: ast.AST, AST tree node
+        path: str, path to file contains element
+    """
 
     _properties: tuple[str, ...] = (
         'lineno',
     )
 
-    def __init__(self, ast_element: (ast.AST | None)):
+    def __init__(
+        self,
+        ast_element: (ast.AST | None),
+        path: str
+    ):
         self.ast_element = ast_element
+        self.path = path
 
     @property
     def lineno(self) -> (int | None):
@@ -63,7 +74,7 @@ class DocElement:
         return d
 
 
-class Typing(DocElement):
+class Typing(AstWrapper):
     """Class for Python typing annotations representation"""
 
     _properties: tuple[str, ...] = (
@@ -82,21 +93,21 @@ class Typing(DocElement):
         if isinstance(self.ast_element, ast.Constant):
             return str(self.ast_element.value)
         elif isinstance(self.ast_element, ast.Subscript):
-            value = Typing(self.ast_element.value).annotation
-            value_slice = Typing(self.ast_element.slice).annotation
+            value = Typing(self.ast_element.value, self.path).annotation
+            value_slice = Typing(self.ast_element.slice, self.path).annotation
             return f'{value}[{value_slice}]'
         elif isinstance(self.ast_element, ast.Attribute):
-            value = Typing(self.ast_element.value).annotation
+            value = Typing(self.ast_element.value, self.path).annotation
             value_attr = self.ast_element.attr
             return f'{value}.{value_attr}'
         elif isinstance(self.ast_element, ast.Tuple):
             return ', '.join(
-                Typing(element).annotation
+                Typing(element, self.path).annotation
                 for element in self.ast_element.elts
             )
         elif isinstance(self.ast_element, ast.BinOp):
-            left = Typing(self.ast_element.left).annotation
-            right = Typing(self.ast_element.right).annotation
+            left = Typing(self.ast_element.left, self.path).annotation
+            right = Typing(self.ast_element.right, self.path).annotation
             op = '|'
             for binop, symbol in BINOPS.items():
                 if isinstance(self.ast_element.op, binop):
@@ -107,7 +118,7 @@ class Typing(DocElement):
         raise ValueError(f'Unknown annotation type: {self.ast_element}')
 
 
-class Argument(DocElement):
+class Argument(AstWrapper):
     """Class for function argument representation"""
 
     _properties: tuple[str, ...] = (
@@ -115,8 +126,13 @@ class Argument(DocElement):
         'type'
     )
 
-    def __init__(self, ast_element: ast.arg):
+    def __init__(
+        self,
+        ast_element: ast.arg,
+        path: str
+    ):
         self.ast_element = ast_element
+        self.path = path
 
     @property
     def name(self) -> str:
@@ -130,10 +146,13 @@ class Argument(DocElement):
 
         Returns: Typing, typing annotation
         """
-        return Typing(self.ast_element.annotation)
+        return Typing(
+            self.ast_element.annotation,
+            self.path
+        )
 
 
-class FunctionDefinition(DocElement):
+class FunctionDefinition(AstWrapper):
     """Class for function representation"""
 
     _properties: tuple[str, ...] = (
@@ -145,9 +164,11 @@ class FunctionDefinition(DocElement):
 
     def __init__(
         self,
-        ast_element: ast.FunctionDef
+        ast_element: ast.FunctionDef,
+        path: str
     ):
         self.ast_element = ast_element
+        self.path = path
 
     @property
     def name(self) -> str:
@@ -158,14 +179,17 @@ class FunctionDefinition(DocElement):
     def arguments(self) -> list[Argument]:
         """Returns list of function arguments"""
         return [
-            Argument(element)
+            Argument(element, self.path)
             for element in self.ast_element.args.args
         ]
 
     @property
     def returns(self) -> Typing:
         """Returns function return typing annotation"""
-        return Typing(self.ast_element.returns)
+        return Typing(
+            self.ast_element.returns,
+            self.path
+        )
 
     @property
     def docstring(self) -> (doc.Docstring | None):
@@ -178,7 +202,7 @@ class FunctionDefinition(DocElement):
                     return doc.parse(potentional_docstring_value.value)
 
 
-class ClassDefinition(DocElement):
+class ClassDefinition(AstWrapper):
     """Class for Python class representation"""
 
     _properties: tuple[str, ...] = (
@@ -190,9 +214,11 @@ class ClassDefinition(DocElement):
 
     def __init__(
         self,
-        ast_element: ast.ClassDef
+        ast_element: ast.ClassDef,
+        path: str
     ):
         self.ast_element = ast_element
+        self.path = path
 
     @property
     def name(self) -> str:
@@ -222,13 +248,14 @@ class ClassDefinition(DocElement):
     def methods(self) -> list[FunctionDefinition]:
         """Returns list of class methods"""
         return [
-            FunctionDefinition(element)
+            FunctionDefinition(element, self.path)
             for element in self.ast_element.body
             if isinstance(element, ast.FunctionDef)
         ]
 
 
-class ModuleDefinition(DocElement):
+class ModuleDefinition(AstWrapper):
+    """Class for Python module representation"""
 
     _properties: tuple[str, ...] = (
         'name',
@@ -238,8 +265,8 @@ class ModuleDefinition(DocElement):
     )
 
     def __init__(self, ast_element: ast.Module, path: str):
-        self.path = path
         self.ast_element = ast_element
+        self.path = path
 
     @property
     def name(self):
@@ -260,7 +287,7 @@ class ModuleDefinition(DocElement):
     def classes(self) -> list[ClassDefinition]:
         """Returns list of module classes"""
         return [
-            ClassDefinition(element)
+            ClassDefinition(element, self.path)
             for element in self.ast_element.body
             if isinstance(element, ast.ClassDef)
         ]
@@ -269,13 +296,41 @@ class ModuleDefinition(DocElement):
     def functions(self) -> list[FunctionDefinition]:
         """Returns list of module functions"""
         return [
-            FunctionDefinition(element)
+            FunctionDefinition(element, self.path)
             for element in self.ast_element.body
             if isinstance(element, ast.FunctionDef)
         ]
 
 
-def parse(path: str) -> ModuleDefinition:
+class PackageDefinition(AstWrapper):
+    """Class for python package representation"""
+
+    def __init__(
+        self,
+        modules: list[ModuleDefinition],
+        packages: 'list[PackageDefinition]',
+        path: str
+    ):
+        self.modules = modules
+        self.packages = packages
+        self.path = path
+
+    @property
+    def name(self):
+        """Returns package name"""
+        return os.path.basename(self.path)
+
+
+def _is_python_module(path: str):
+    """Simple check if file is python module"""
+    if os.path.isfile(path):
+        if path.endswith('.py'):
+            return True
+
+    return False
+
+
+def parse_module(path: str) -> ModuleDefinition:
     """
     Parses Python module content
 
@@ -291,3 +346,40 @@ def parse(path: str) -> ModuleDefinition:
 
     tree = ast.parse(source)
     return ModuleDefinition(tree, path)
+
+
+def parse(path: str) -> (PackageDefinition | ModuleDefinition | None):
+    """
+    Parses Python module or package content
+
+    Args:
+        path: pathlib.Path, Python module path
+
+    Returns:
+        (ModuleDefinition | PackageDefinition | None): module or package
+            objects definition
+    """
+
+    if _is_python_module(path):
+        return parse_module(path)
+    elif os.path.isdir(path):
+        modules = []
+        packages = []
+
+        for entity in os.listdir(path):
+            entity_path = os.path.join(path, entity)
+            entity_def = parse(entity_path)
+
+            if entity_def is None:
+                continue
+            elif isinstance(entity_def, ModuleDefinition):
+                modules.append(entity_def)
+            elif isinstance(entity_def, PackageDefinition):
+                packages.append(entity_def)
+
+        if modules or packages:
+            return PackageDefinition(
+                modules=modules,
+                packages=packages,
+                path=path
+            )

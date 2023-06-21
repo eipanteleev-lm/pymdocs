@@ -1,5 +1,6 @@
 import urllib.parse
 from enum import Enum
+from typing import Any
 
 MARKDOWN_QUOTE_SYMBOLS = list('_*`')
 
@@ -31,15 +32,15 @@ class MarkdownContainer:
     """
 
     @staticmethod
-    def _validate(element: '(MarkdownContainer | str)'):
+    def _validate(element: Any) -> Any:
         if isinstance(element, (MarkdownContainer, str)):
             return element
 
         raise ValueError(
-            f'Obj {element} is not MarkdownContainer or string'
+            f'Obj of {type(element)} is not MarkdownContainer or string'
         )
 
-    def _validate_elements(self, elements: 'list[MarkdownContainer | str]'):
+    def _validate_elements(self, elements: list[Any]) -> list[Any]:
         for element in elements:
             self._validate(element)
 

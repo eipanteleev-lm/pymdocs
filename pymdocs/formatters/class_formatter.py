@@ -1,3 +1,5 @@
+from typing import Optional, Tuple
+
 import pymdocs.formatters.markdown_constructor as md
 from pymdocs.formatters.base import BaseFormatter, FormatterType
 from pymdocs.formatters.helpers import module_line_path_link
@@ -11,11 +13,11 @@ class ClassFormatter(BaseFormatter):
     Attributes:
         _requires: tuple[FormatterType, ...], data attribute,tuple of
             required formatters (DOCSTRING, FUNCTION)
-        formatters: (dict[FormatterType, BaseFormatter] | None), formatters
+        formatters: (Dict[FormatterType, BaseFormatter] | None), formatters
             to be used inside
     """
 
-    _requires: tuple[FormatterType, ...] = (
+    _requires: Tuple[FormatterType, ...] = (
         FormatterType.DOCSTRING,
         FormatterType.FUNCTION
     )
@@ -24,8 +26,8 @@ class ClassFormatter(BaseFormatter):
         self,
         class_def: ClassDefinition,
         doc_path: str,
-        package_name: (str | None) = None,
-        module_name: (str | None) = None
+        package_name: Optional[str] = None,
+        module_name: Optional[str] = None
     ):
         """
         Returns Markdown element for function definition

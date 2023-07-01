@@ -1,3 +1,5 @@
+from typing import Dict, Optional
+
 from pymdocs.formatters.base import (
     BaseFormatter,
     FORMATTERS_HIERARCHY,
@@ -15,7 +17,7 @@ from pymdocs.parsers.ast import (
     ModuleDefinition,
     PackageDefinition
 )
-from pymdocs.parsers.docstring.google import Docstring
+from pymdocs.parsers.docstring.base import Docstring
 
 
 _FORMATTERS_TARGET_MAP = {
@@ -42,13 +44,13 @@ class Formatter(BaseFormatter):
     Attributes:
         _requires: tuple[FormatterType, ...], data attribute,tuple of
             required formatters
-        formatters: (dict[FormatterType, BaseFormatter] | None), formatters
+        formatters: (Dict[FormatterType, BaseFormatter] | None), formatters
             to be used inside
     """
 
     def __init__(
         self,
-        formatters: (dict[FormatterType, BaseFormatter] | None) = None
+        formatters: Optional[Dict[FormatterType, BaseFormatter]] = None
     ):
         formatters = formatters or {}
         for formatter_type in FORMATTERS_HIERARCHY:

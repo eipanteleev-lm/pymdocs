@@ -5,6 +5,9 @@
 - [pymdocs.cli](#pymdocs-cli)
 - [pymdocs.parsers.ast](#pymdocs-parsers-ast)
 - [pymdocs.parsers.docstring.google](#pymdocs-parsers-docstring-google)
+- [pymdocs.parsers.docstring.numpy](#pymdocs-parsers-docstring-numpy)
+- [pymdocs.parsers.docstring.helpers](#pymdocs-parsers-docstring-helpers)
+- [pymdocs.parsers.docstring.base](#pymdocs-parsers-docstring-base)
 - [pymdocs.formatters.class_formatter](#pymdocs-formatters-class_formatter)
 - [pymdocs.formatters.markdown_constructor](#pymdocs-formatters-markdown_constructor)
 - [pymdocs.formatters.package_formatter](#pymdocs-formatters-package_formatter)
@@ -19,7 +22,7 @@
 
 ## Classes
 
-### *class* `pymdocs.cli.Pymdocs` [[source]](../pymdocs/cli.py#L8)
+### *class* `pymdocs.cli.Pymdocs` [[source]](../pymdocs/cli.py#L9)
 
 
 
@@ -35,7 +38,7 @@ Class for rendering Markdown documentation
 
 #### Methods
 
-> **pymdocs.cli.Pymdocs.doc**(*self: Any*) -> *Any* [[source]](../pymdocs/cli.py#L41)
+> **pymdocs.cli.Pymdocs.doc**(*self: Any*) -> *None* [[source]](../pymdocs/cli.py#L42)
 
 Generates Code Reference for python code
 
@@ -45,7 +48,7 @@ Generates Code Reference for python code
 
 ## Functions
 
-> **pymdocs.cli.main**() -> *Any* [[source]](../pymdocs/cli.py#L58)
+> **pymdocs.cli.main**() -> *None* [[source]](../pymdocs/cli.py#L59)
 
 
 
@@ -53,7 +56,7 @@ Generates Code Reference for python code
 
 ## Classes
 
-### *class* `pymdocs.parsers.ast.AstWrapper` [[source]](../pymdocs/parsers/ast.py#L11)
+### *class* `pymdocs.parsers.ast.AstWrapper` [[source]](../pymdocs/parsers/ast.py#L12)
 
 
 
@@ -68,19 +71,19 @@ Base class for Python AST element wrapper
 
 #### Methods
 
-> **pymdocs.parsers.ast.AstWrapper.lineno**(*self: Any*) -> *(int | None)* [[source]](../pymdocs/parsers/ast.py#L33)
+> **pymdocs.parsers.ast.AstWrapper.lineno**(*self: Any*) -> *Optional[int]* [[source]](../pymdocs/parsers/ast.py#L34)
 
 Returns line number of the element in file
 
 
 
-> **pymdocs.parsers.ast.AstWrapper.properties**(*self: Any*) -> *dict* [[source]](../pymdocs/parsers/ast.py#L45)
+> **pymdocs.parsers.ast.AstWrapper.properties**(*self: Any*) -> *dict* [[source]](../pymdocs/parsers/ast.py#L47)
 
 Returns dict of object properties values
 
 
 
-> **pymdocs.parsers.ast.AstWrapper.dict**(*self: Any*) -> *dict* [[source]](../pymdocs/parsers/ast.py#L55)
+> **pymdocs.parsers.ast.AstWrapper.dict**(*self: Any*) -> *dict* [[source]](../pymdocs/parsers/ast.py#L57)
 
 Returns element dict representation (and all subelements recursively)
 
@@ -88,7 +91,7 @@ Returns element dict representation (and all subelements recursively)
 
 
 
-### *class* `pymdocs.parsers.ast.Typing` [[source]](../pymdocs/parsers/ast.py#L77)
+### *class* `pymdocs.parsers.ast.Typing` [[source]](../pymdocs/parsers/ast.py#L79)
 
 Base: `AstWrapper`
 
@@ -98,7 +101,7 @@ Class for Python typing annotations representation
 
 #### Methods
 
-> **pymdocs.parsers.ast.Typing.annotation**(*self: Any*) -> *str* [[source]](../pymdocs/parsers/ast.py#L85)
+> **pymdocs.parsers.ast.Typing.annotation**(*self: Any*) -> *str* [[source]](../pymdocs/parsers/ast.py#L87)
 
 Returns string representation of typing annotation
 
@@ -106,7 +109,7 @@ Returns string representation of typing annotation
 
 
 
-### *class* `pymdocs.parsers.ast.Argument` [[source]](../pymdocs/parsers/ast.py#L121)
+### *class* `pymdocs.parsers.ast.Argument` [[source]](../pymdocs/parsers/ast.py#L123)
 
 Base: `AstWrapper`
 
@@ -116,13 +119,13 @@ Class for function argument representation
 
 #### Methods
 
-> **pymdocs.parsers.ast.Argument.name**(*self: Any*) -> *str* [[source]](../pymdocs/parsers/ast.py#L138)
+> **pymdocs.parsers.ast.Argument.name**(*self: Any*) -> *str* [[source]](../pymdocs/parsers/ast.py#L140)
 
 Returns name of function argument
 
 
 
-> **pymdocs.parsers.ast.Argument.type**(*self: Any*) -> *Typing* [[source]](../pymdocs/parsers/ast.py#L143)
+> **pymdocs.parsers.ast.Argument.type**(*self: Any*) -> *Typing* [[source]](../pymdocs/parsers/ast.py#L145)
 
 Returns typing annotation of function argument
 
@@ -130,7 +133,7 @@ Returns typing annotation of function argument
 
 
 
-### *class* `pymdocs.parsers.ast.FunctionDefinition` [[source]](../pymdocs/parsers/ast.py#L155)
+### *class* `pymdocs.parsers.ast.FunctionDefinition` [[source]](../pymdocs/parsers/ast.py#L157)
 
 Base: `AstWrapper`
 
@@ -140,25 +143,25 @@ Class for function representation
 
 #### Methods
 
-> **pymdocs.parsers.ast.FunctionDefinition.name**(*self: Any*) -> *str* [[source]](../pymdocs/parsers/ast.py#L174)
+> **pymdocs.parsers.ast.FunctionDefinition.name**(*self: Any*) -> *str* [[source]](../pymdocs/parsers/ast.py#L176)
 
 Returns function name
 
 
 
-> **pymdocs.parsers.ast.FunctionDefinition.arguments**(*self: Any*) -> *list[Argument]* [[source]](../pymdocs/parsers/ast.py#L179)
+> **pymdocs.parsers.ast.FunctionDefinition.arguments**(*self: Any*) -> *List[Argument]* [[source]](../pymdocs/parsers/ast.py#L181)
 
 Returns list of function arguments
 
 
 
-> **pymdocs.parsers.ast.FunctionDefinition.returns**(*self: Any*) -> *Typing* [[source]](../pymdocs/parsers/ast.py#L187)
+> **pymdocs.parsers.ast.FunctionDefinition.returns**(*self: Any*) -> *Typing* [[source]](../pymdocs/parsers/ast.py#L189)
 
 Returns function return typing annotation
 
 
 
-> **pymdocs.parsers.ast.FunctionDefinition.docstring**(*self: Any*) -> *(doc.Docstring | None)* [[source]](../pymdocs/parsers/ast.py#L195)
+> **pymdocs.parsers.ast.FunctionDefinition.docstring**(*self: Any*) -> *Optional[doc.Docstring]* [[source]](../pymdocs/parsers/ast.py#L197)
 
 Returns function docstring if exists
 
@@ -166,7 +169,7 @@ Returns function docstring if exists
 
 
 
-### *class* `pymdocs.parsers.ast.ClassDefinition` [[source]](../pymdocs/parsers/ast.py#L205)
+### *class* `pymdocs.parsers.ast.ClassDefinition` [[source]](../pymdocs/parsers/ast.py#L207)
 
 Base: `AstWrapper`
 
@@ -176,25 +179,25 @@ Class for Python class representation
 
 #### Methods
 
-> **pymdocs.parsers.ast.ClassDefinition.name**(*self: Any*) -> *str* [[source]](../pymdocs/parsers/ast.py#L224)
+> **pymdocs.parsers.ast.ClassDefinition.name**(*self: Any*) -> *str* [[source]](../pymdocs/parsers/ast.py#L226)
 
 Returns class name
 
 
 
-> **pymdocs.parsers.ast.ClassDefinition.inherits**(*self: Any*) -> *list[str]* [[source]](../pymdocs/parsers/ast.py#L229)
+> **pymdocs.parsers.ast.ClassDefinition.inherits**(*self: Any*) -> *List[str]* [[source]](../pymdocs/parsers/ast.py#L231)
 
 Returns class bases
 
 
 
-> **pymdocs.parsers.ast.ClassDefinition.docstring**(*self: Any*) -> *(doc.Docstring | None)* [[source]](../pymdocs/parsers/ast.py#L238)
+> **pymdocs.parsers.ast.ClassDefinition.docstring**(*self: Any*) -> *Optional[doc.Docstring]* [[source]](../pymdocs/parsers/ast.py#L240)
 
 Retuns class docstring if exists
 
 
 
-> **pymdocs.parsers.ast.ClassDefinition.methods**(*self: Any*) -> *list[FunctionDefinition]* [[source]](../pymdocs/parsers/ast.py#L248)
+> **pymdocs.parsers.ast.ClassDefinition.methods**(*self: Any*) -> *List[FunctionDefinition]* [[source]](../pymdocs/parsers/ast.py#L250)
 
 Returns list of class methods
 
@@ -202,7 +205,7 @@ Returns list of class methods
 
 
 
-### *class* `pymdocs.parsers.ast.ModuleDefinition` [[source]](../pymdocs/parsers/ast.py#L257)
+### *class* `pymdocs.parsers.ast.ModuleDefinition` [[source]](../pymdocs/parsers/ast.py#L259)
 
 Base: `AstWrapper`
 
@@ -212,25 +215,25 @@ Class for Python module representation
 
 #### Methods
 
-> **pymdocs.parsers.ast.ModuleDefinition.name**(*self: Any*) -> *Any* [[source]](../pymdocs/parsers/ast.py#L272)
+> **pymdocs.parsers.ast.ModuleDefinition.name**(*self: Any*) -> *str* [[source]](../pymdocs/parsers/ast.py#L274)
 
 Returns module name
 
 
 
-> **pymdocs.parsers.ast.ModuleDefinition.docstring**(*self: Any*) -> *(doc.Docstring | None)* [[source]](../pymdocs/parsers/ast.py#L277)
+> **pymdocs.parsers.ast.ModuleDefinition.docstring**(*self: Any*) -> *Optional[doc.Docstring]* [[source]](../pymdocs/parsers/ast.py#L279)
 
 Retuns module docstring if exists
 
 
 
-> **pymdocs.parsers.ast.ModuleDefinition.classes**(*self: Any*) -> *list[ClassDefinition]* [[source]](../pymdocs/parsers/ast.py#L287)
+> **pymdocs.parsers.ast.ModuleDefinition.classes**(*self: Any*) -> *List[ClassDefinition]* [[source]](../pymdocs/parsers/ast.py#L289)
 
 Returns list of module classes
 
 
 
-> **pymdocs.parsers.ast.ModuleDefinition.functions**(*self: Any*) -> *list[FunctionDefinition]* [[source]](../pymdocs/parsers/ast.py#L296)
+> **pymdocs.parsers.ast.ModuleDefinition.functions**(*self: Any*) -> *List[FunctionDefinition]* [[source]](../pymdocs/parsers/ast.py#L298)
 
 Returns list of module functions
 
@@ -238,7 +241,7 @@ Returns list of module functions
 
 
 
-### *class* `pymdocs.parsers.ast.PackageDefinition` [[source]](../pymdocs/parsers/ast.py#L305)
+### *class* `pymdocs.parsers.ast.PackageDefinition` [[source]](../pymdocs/parsers/ast.py#L307)
 
 Base: `AstWrapper`
 
@@ -248,7 +251,7 @@ Class for python package representation
 
 #### Methods
 
-> **pymdocs.parsers.ast.PackageDefinition.name**(*self: Any*) -> *Any* [[source]](../pymdocs/parsers/ast.py#L319)
+> **pymdocs.parsers.ast.PackageDefinition.name**(*self: Any*) -> *str* [[source]](../pymdocs/parsers/ast.py#L321)
 
 Returns package name
 
@@ -258,7 +261,7 @@ Returns package name
 
 ## Functions
 
-> **pymdocs.parsers.ast.parse\_module**(*path: str*) -> *ModuleDefinition* [[source]](../pymdocs/parsers/ast.py#L333)
+> **pymdocs.parsers.ast.parse\_module**(*path: str*) -> *ModuleDefinition* [[source]](../pymdocs/parsers/ast.py#L335)
 
 Parses Python module content
 
@@ -272,7 +275,7 @@ Parses Python module content
 
 
 
-> **pymdocs.parsers.ast.parse**(*path: str*) -> *((PackageDefinition | ModuleDefinition) | None)* [[source]](../pymdocs/parsers/ast.py#L351)
+> **pymdocs.parsers.ast.parse**(*path: str*) -> *Optional[Union[PackageDefinition, ModuleDefinition]]* [[source]](../pymdocs/parsers/ast.py#L353)
 
 Parses Python module or package content
 
@@ -291,7 +294,99 @@ objects definition
 
 ## Classes
 
-### *class* `pymdocs.parsers.docstring.google.DocstringElement` [[source]](../pymdocs/parsers/docstring/google.py#L64)
+### *class* `pymdocs.parsers.docstring.google.DocstringSections` [[source]](../pymdocs/parsers/docstring/google.py#L26)
+
+Base: `str, Enum`
+
+
+
+
+
+## Functions
+
+> **pymdocs.parsers.docstring.google.parse\_section**(*text: str*, *section\_type: str*) -> *DocstringSection* [[source]](../pymdocs/parsers/docstring/google.py#L103)
+
+Parses section from text by section type
+
+**Args:**
+
+- *text*: str, text to parse
+- *section\_type*: str, section type (Args, Attributes, Raises, etc.)
+
+**Returns:**
+
+`DocstringSection`: DocstringSection object
+
+
+
+> **pymdocs.parsers.docstring.google.parse**(*docstring: str*) -> *Docstring* [[source]](../pymdocs/parsers/docstring/google.py#L139)
+
+Parses Google Style docstring
+
+**Args:**
+
+- *docstring*: Google Style docstring
+
+**Returns:**
+
+`Docstring`: Docstring object
+
+
+
+# <a class="anchor" id="pymdocs-parsers-docstring-numpy"></a>*module* pymdocs.parsers.docstring.numpy
+
+## Classes
+
+### *class* `pymdocs.parsers.docstring.numpy.DocstringSections` [[source]](../pymdocs/parsers/docstring/numpy.py#L26)
+
+Base: `str, Enum`
+
+
+
+
+
+## Functions
+
+> **pymdocs.parsers.docstring.numpy.parse\_section**(*text: str*, *section\_type: str*) -> *DocstringSection* [[source]](../pymdocs/parsers/docstring/numpy.py#L109)
+
+Parses section from text by section type
+
+**Returns:**
+
+`DocstringSection`: DocstringSection object
+
+
+
+> **pymdocs.parsers.docstring.numpy.parse**(*docstring: str*) -> *Docstring* [[source]](../pymdocs/parsers/docstring/numpy.py#L152)
+
+Parses Numpy Style docstring
+
+**Returns:**
+
+`Docstring`: Docstring object
+
+
+
+# <a class="anchor" id="pymdocs-parsers-docstring-helpers"></a>*module* pymdocs.parsers.docstring.helpers
+
+## Functions
+
+> **pymdocs.parsers.docstring.helpers.iter\_split**(*pattern: re.Pattern*, *text: str*) -> *Iterator[Tuple[Optional[re.Match], str, int, int]]* [[source]](../pymdocs/parsers/docstring/helpers.py#L5)
+
+Iterates through pattern matches and yiedls text between them
+
+**Args:**
+
+- *pattern*: re.Pattern, pattern to search
+- *text*: str, text to search pattern
+
+
+
+# <a class="anchor" id="pymdocs-parsers-docstring-base"></a>*module* pymdocs.parsers.docstring.base
+
+## Classes
+
+### *class* `pymdocs.parsers.docstring.base.DocstringElement` [[source]](../pymdocs/parsers/docstring/base.py#L4)
 
 
 
@@ -299,11 +394,13 @@ Base class for docstring elements
 
 
 
+#### Methods
 
 
-### *class* `pymdocs.parsers.docstring.google.DocstringSection` [[source]](../pymdocs/parsers/docstring/google.py#L68)
 
-Base: `DocstringElement`
+### *class* `pymdocs.parsers.docstring.base.DocstringSection` [[source]](../pymdocs/parsers/docstring/base.py#L11)
+
+
 
 Base class for docstring section
 
@@ -313,7 +410,7 @@ Base class for docstring section
 
 
 
-### *class* `pymdocs.parsers.docstring.google.DocstringArg` [[source]](../pymdocs/parsers/docstring/google.py#L78)
+### *class* `pymdocs.parsers.docstring.base.DocstringArg` [[source]](../pymdocs/parsers/docstring/base.py#L21)
 
 Base: `DocstringElement`
 
@@ -331,7 +428,7 @@ Class for docstring 'Args' section element
 
 
 
-### *class* `pymdocs.parsers.docstring.google.DocstringArgsSection` [[source]](../pymdocs/parsers/docstring/google.py#L99)
+### *class* `pymdocs.parsers.docstring.base.DocstringArgsSection` [[source]](../pymdocs/parsers/docstring/base.py#L42)
 
 Base: `DocstringSection`
 
@@ -339,7 +436,7 @@ Class for docstring 'Args' section
 
 **Attributes:**
 
-- *attributes*: list[DocstringArg], list of arguments
+- *attributes*: List[DocstringArg], list of arguments
 
 
 
@@ -347,7 +444,7 @@ Class for docstring 'Args' section
 
 
 
-### *class* `pymdocs.parsers.docstring.google.DocstringAttribute` [[source]](../pymdocs/parsers/docstring/google.py#L111)
+### *class* `pymdocs.parsers.docstring.base.DocstringAttribute` [[source]](../pymdocs/parsers/docstring/base.py#L54)
 
 Base: `DocstringElement`
 
@@ -365,7 +462,7 @@ Class for docstring 'Attributes' section element
 
 
 
-### *class* `pymdocs.parsers.docstring.google.DocstringAttributesSection` [[source]](../pymdocs/parsers/docstring/google.py#L132)
+### *class* `pymdocs.parsers.docstring.base.DocstringAttributesSection` [[source]](../pymdocs/parsers/docstring/base.py#L78)
 
 Base: `DocstringSection`
 
@@ -373,7 +470,7 @@ Class for docstring 'Attributes' section
 
 **Attributes:**
 
-- *attributes*: list[DocstringAttribute], list of attributes
+- *attributes*: List[DocstringAttribute], list of attributes
 
 
 
@@ -381,7 +478,7 @@ Class for docstring 'Attributes' section
 
 
 
-### *class* `pymdocs.parsers.docstring.google.DocstringExample` [[source]](../pymdocs/parsers/docstring/google.py#L144)
+### *class* `pymdocs.parsers.docstring.base.DocstringExample` [[source]](../pymdocs/parsers/docstring/base.py#L90)
 
 Base: `DocstringElement`
 
@@ -397,7 +494,7 @@ Class for docstring 'Examples' section element
 
 
 
-### *class* `pymdocs.parsers.docstring.google.DocstringExamplesSection` [[source]](../pymdocs/parsers/docstring/google.py#L156)
+### *class* `pymdocs.parsers.docstring.base.DocstringExamplesSection` [[source]](../pymdocs/parsers/docstring/base.py#L102)
 
 Base: `DocstringSection`
 
@@ -405,7 +502,7 @@ Class for docstring 'Examples' section
 
 **Attributes:**
 
-- *attributes*: list[DocstringExample], list of docstring examples
+- *attributes*: List[DocstringExample], list of docstring examples
 
 
 
@@ -413,7 +510,7 @@ Class for docstring 'Examples' section
 
 
 
-### *class* `pymdocs.parsers.docstring.google.DocstringRaises` [[source]](../pymdocs/parsers/docstring/google.py#L168)
+### *class* `pymdocs.parsers.docstring.base.DocstringRaises` [[source]](../pymdocs/parsers/docstring/base.py#L114)
 
 Base: `DocstringElement`
 
@@ -430,7 +527,7 @@ Class for docstring 'Raises' section elements
 
 
 
-### *class* `pymdocs.parsers.docstring.google.DocstringRaisesSection` [[source]](../pymdocs/parsers/docstring/google.py#L182)
+### *class* `pymdocs.parsers.docstring.base.DocstringRaisesSection` [[source]](../pymdocs/parsers/docstring/base.py#L131)
 
 Base: `DocstringSection`
 
@@ -438,7 +535,7 @@ Class for docstring 'Raises' section
 
 **Attributes:**
 
-- *attributes*: list[DocstringRaises], list of rasing exceptions
+- *attributes*: List[DocstringRaises], list of rasing exceptions
 
 
 
@@ -446,7 +543,7 @@ Class for docstring 'Raises' section
 
 
 
-### *class* `pymdocs.parsers.docstring.google.DocstringReturns` [[source]](../pymdocs/parsers/docstring/google.py#L194)
+### *class* `pymdocs.parsers.docstring.base.DocstringReturns` [[source]](../pymdocs/parsers/docstring/base.py#L143)
 
 Base: `DocstringElement`
 
@@ -463,7 +560,7 @@ Class for docstring 'Returns' section elements
 
 
 
-### *class* `pymdocs.parsers.docstring.google.DocstringReturnsSection` [[source]](../pymdocs/parsers/docstring/google.py#L212)
+### *class* `pymdocs.parsers.docstring.base.DocstringReturnsSection` [[source]](../pymdocs/parsers/docstring/base.py#L164)
 
 Base: `DocstringSection`
 
@@ -471,7 +568,7 @@ Class for docstring 'Returns' section
 
 **Attributes:**
 
-- *attributes*: list[DocstringReturns], returning value description
+- *attributes*: List[DocstringReturns], returning value description
 
 
 
@@ -479,7 +576,7 @@ Class for docstring 'Returns' section
 
 
 
-### *class* `pymdocs.parsers.docstring.google.DocstringYiedls` [[source]](../pymdocs/parsers/docstring/google.py#L224)
+### *class* `pymdocs.parsers.docstring.base.DocstringYiedls` [[source]](../pymdocs/parsers/docstring/base.py#L176)
 
 Base: `DocstringElement`
 
@@ -496,7 +593,7 @@ Class for docstring 'Yields' section elements
 
 
 
-### *class* `pymdocs.parsers.docstring.google.DocstringYiedlsSection` [[source]](../pymdocs/parsers/docstring/google.py#L242)
+### *class* `pymdocs.parsers.docstring.base.DocstringYiedlsSection` [[source]](../pymdocs/parsers/docstring/base.py#L197)
 
 Base: `DocstringSection`
 
@@ -504,7 +601,7 @@ Class for docstring 'Yields' section
 
 **Attributes:**
 
-- *attributes*: list[DocstringYields], yielding value description
+- *attributes*: List[DocstringYields], yielding value description
 
 
 
@@ -512,7 +609,7 @@ Class for docstring 'Yields' section
 
 
 
-### *class* `pymdocs.parsers.docstring.google.Docstring` [[source]](../pymdocs/parsers/docstring/google.py#L254)
+### *class* `pymdocs.parsers.docstring.base.Docstring` [[source]](../pymdocs/parsers/docstring/base.py#L209)
 
 Base: `DocstringSection`
 
@@ -520,44 +617,44 @@ Class for python docstring
 
 **Attributes:**
 
-- *attributes*: list[DocstringSection], list of docstring sections
+- *attributes*: List[DocstringSection], list of docstring sections
 - *description*: str, docstring title
 
 
 
 #### Methods
 
-> **pymdocs.parsers.docstring.google.Docstring.args**(*self: Any*) -> *list[DocstringArg]* [[source]](../pymdocs/parsers/docstring/google.py#L272)
+> **pymdocs.parsers.docstring.base.Docstring.args**(*self: Any*) -> *List[DocstringArg]* [[source]](../pymdocs/parsers/docstring/base.py#L227)
 
 Returns list of docstring 'Args' section elements
 
 
 
-> **pymdocs.parsers.docstring.google.Docstring.attributes**(*self: Any*) -> *list[DocstringAttribute]* [[source]](../pymdocs/parsers/docstring/google.py#L281)
+> **pymdocs.parsers.docstring.base.Docstring.attributes**(*self: Any*) -> *List[DocstringAttribute]* [[source]](../pymdocs/parsers/docstring/base.py#L236)
 
 Returns list of docstring 'Attributes' section elements
 
 
 
-> **pymdocs.parsers.docstring.google.Docstring.examples**(*self: Any*) -> *list[DocstringExample]* [[source]](../pymdocs/parsers/docstring/google.py#L290)
+> **pymdocs.parsers.docstring.base.Docstring.examples**(*self: Any*) -> *List[DocstringExample]* [[source]](../pymdocs/parsers/docstring/base.py#L245)
 
 Returns list of docstring 'Examples' section elements
 
 
 
-> **pymdocs.parsers.docstring.google.Docstring.raises**(*self: Any*) -> *list[DocstringRaises]* [[source]](../pymdocs/parsers/docstring/google.py#L299)
+> **pymdocs.parsers.docstring.base.Docstring.raises**(*self: Any*) -> *List[DocstringRaises]* [[source]](../pymdocs/parsers/docstring/base.py#L254)
 
 Returns list of docstring 'Raises' section elements
 
 
 
-> **pymdocs.parsers.docstring.google.Docstring.returns**(*self: Any*) -> *list[DocstringReturns]* [[source]](../pymdocs/parsers/docstring/google.py#L308)
+> **pymdocs.parsers.docstring.base.Docstring.returns**(*self: Any*) -> *List[DocstringReturns]* [[source]](../pymdocs/parsers/docstring/base.py#L263)
 
 Returns list of docstring 'Returns' section elements
 
 
 
-> **pymdocs.parsers.docstring.google.Docstring.yields**(*self: Any*) -> *list[DocstringYiedls]* [[source]](../pymdocs/parsers/docstring/google.py#L317)
+> **pymdocs.parsers.docstring.base.Docstring.yields**(*self: Any*) -> *List[DocstringYiedls]* [[source]](../pymdocs/parsers/docstring/base.py#L272)
 
 Returns list of docstring 'Yields' section elements
 
@@ -565,53 +662,11 @@ Returns list of docstring 'Yields' section elements
 
 
 
-## Functions
-
-> **pymdocs.parsers.docstring.google.iter\_split**(*pattern: re.Pattern*, *text: str*) -> *Iterator[tuple[(re.Match | None), str, int, int]]* [[source]](../pymdocs/parsers/docstring/google.py#L345)
-
-Iterates through pattern matches and yiedls text between them
-
-**Args:**
-
-- *pattern*: re.Pattern, pattern to search
-- *text*: str, text to search pattern
-
-
-
-> **pymdocs.parsers.docstring.google.parse\_section**(*text: str*, *section\_type: str*) -> *DocstringSection* [[source]](../pymdocs/parsers/docstring/google.py#L394)
-
-Parses section from text by section type
-
-**Args:**
-
-- *text*: str, text to parse
-- *section\_type*: str, section type (Args, Attributes, Raises, etc.)
-
-**Returns:**
-
-`DocstringSection`: DocstringSection object
-
-
-
-> **pymdocs.parsers.docstring.google.parse**(*docstring: str*) -> *Any* [[source]](../pymdocs/parsers/docstring/google.py#L430)
-
-Parses Google Style docstring
-
-**Args:**
-
-- *docstring*: Google Style docstring
-
-**Returns:**
-
-`Docstring`: Docstring object
-
-
-
 # <a class="anchor" id="pymdocs-formatters-class_formatter"></a>*module* pymdocs.formatters.class\_formatter
 
 ## Classes
 
-### *class* `pymdocs.formatters.class_formatter.ClassFormatter` [[source]](../pymdocs/formatters/class_formatter.py#L7)
+### *class* `pymdocs.formatters.class_formatter.ClassFormatter` [[source]](../pymdocs/formatters/class_formatter.py#L9)
 
 Base: `BaseFormatter`
 
@@ -621,14 +676,14 @@ Formatter for ClassDefinition objects
 
 - *\_requires*: tuple[FormatterType, ...], data attribute,tuple of
 required formatters (DOCSTRING, FUNCTION)
-- *formatters*: (dict[FormatterType, BaseFormatter] | None), formatters
+- *formatters*: (Dict[FormatterType, BaseFormatter] | None), formatters
 to be used inside
 
 
 
 #### Methods
 
-> **pymdocs.formatters.class\_formatter.ClassFormatter.format**(*self: Any*, *class\_def: ClassDefinition*, *doc\_path: str*, *package\_name: (str | None)*, *module\_name: (str | None)*) -> *Any* [[source]](../pymdocs/formatters/class_formatter.py#L23)
+> **pymdocs.formatters.class\_formatter.ClassFormatter.format**(*self: Any*, *class\_def: ClassDefinition*, *doc\_path: str*, *package\_name: Optional[str]*, *module\_name: Optional[str]*) -> *Any* [[source]](../pymdocs/formatters/class_formatter.py#L25)
 
 Returns Markdown element for function definition
 
@@ -660,10 +715,10 @@ other elements
 
 **Attributes:**
 
-- *elemens*: list[MarkdownContainer | str], list of inner elements,
+- *elemens*: List[Union[MarkdownContainer, str]], list of inner elements,
 could be another MarkdownContainer or python string
-- *sep*: (MarkdownContainer | str), elements separator, could be another
-MarkdownContainer or python string
+- *sep*: Union[MarkdownContainer, str], elements separator, could be
+another MarkdownContainer or python string
 
 **Examples:**
 
@@ -813,8 +868,8 @@ Base class for Markdown header element
 
 **Attributes:**
 
-- *elements*: list[MarkdownContainer | str], list of inner elements
-- *sep*: (MarkdownContainer | str), elements separator
+- *elements*: List[Union[MarkdownContainer, str]], list of inner elements
+- *sep*: Union[MarkdownContainer, str], elements separator
 - *level*: int, optional, level of the header, 1 by default
 
 **Examples:**
@@ -1047,7 +1102,7 @@ Class for Markdown ordered list element
 
 **Attributes:**
 
-- *elements*: list[MarkdownContainer | str], list of inner elements
+- *elements*: List[Union[MarkdownContainer, str]], list of inner elements
 
 **Examples:**
 
@@ -1079,7 +1134,7 @@ Class for Markdown unordered list element
 
 **Attributes:**
 
-- *elements*: list[MarkdownContainer | str], list of inner elements
+- *elements*: List[Union[MarkdownContainer, str]], list of inner elements
 
 **Examples:**
 
@@ -1111,8 +1166,8 @@ Class for Markdown task list item element
 
 **Attributes:**
 
-- *elements*: list[MarkdownContainer | str], list of inner elements
-- *sep*: (MarkdownContainer | str), elements separator
+- *elements*: List[Union[MarkdownContainer, str]], list of inner elements
+- *sep*: Union[MarkdownContainer, str], elements separator
 - *is\_done*: bool, is the task done or not, False by default
 
 
@@ -1191,8 +1246,8 @@ Class for Markdown multiline code block
 
 **Attributes:**
 
-- *elements*: list[MarkdownContainer | str], list of inner elements
-- *sep*: (MarkdownContainer | str), elements separator
+- *elements*: List[Union[MarkdownContainer, str]], list of inner elements
+- *sep*: Union[MarkdownContainer, str], elements separator
 - *language*: str, language to highlight in code block
 
 **Examples:**
@@ -1242,7 +1297,7 @@ Class for Markdown table row element
 
 **Attributes:**
 
-- *elements*: list[MarkdownContainer | str], table row elements
+- *elements*: List[Union[MarkdownContainer, str]], table row elements
 
 **Examples:**
 
@@ -1384,7 +1439,7 @@ Class for Latex formulas
 
 ## Classes
 
-### *class* `pymdocs.formatters.package_formatter.PackageFormatter` [[source]](../pymdocs/formatters/package_formatter.py#L6)
+### *class* `pymdocs.formatters.package_formatter.PackageFormatter` [[source]](../pymdocs/formatters/package_formatter.py#L8)
 
 Base: `BaseFormatter`
 
@@ -1401,7 +1456,7 @@ to be used inside
 
 #### Methods
 
-> **pymdocs.formatters.package\_formatter.PackageFormatter.flatten\_modules**(*self: Any*, *package\_def: PackageDefinition*, *doc\_path: str*, *prefix: str*) -> *list[tuple[md.MarkdownContainer, md.Link]]* [[source]](../pymdocs/formatters/package_formatter.py#L24)
+> **pymdocs.formatters.package\_formatter.PackageFormatter.flatten\_modules**(*self: Any*, *package\_def: PackageDefinition*, *doc\_path: str*, *prefix: str*) -> *List[Tuple[md.MarkdownContainer, md.Link]]* [[source]](../pymdocs/formatters/package_formatter.py#L26)
 
 Formats package definition as a list of formatted module definitions
 recursively
@@ -1420,7 +1475,7 @@ section
 
 
 
-> **pymdocs.formatters.package\_formatter.PackageFormatter.format**(*self: Any*, *package\_def: PackageDefinition*, *doc\_path: str*) -> *Any* [[source]](../pymdocs/formatters/package_formatter.py#L80)
+> **pymdocs.formatters.package\_formatter.PackageFormatter.format**(*self: Any*, *package\_def: PackageDefinition*, *doc\_path: str*) -> *Any* [[source]](../pymdocs/formatters/package_formatter.py#L82)
 
 Returns Markdown element for package definition
 
@@ -1441,7 +1496,7 @@ Returns Markdown element for package definition
 
 ## Classes
 
-### *class* `pymdocs.formatters.function_formatter.FunctionFormatter` [[source]](../pymdocs/formatters/function_formatter.py#L7)
+### *class* `pymdocs.formatters.function_formatter.FunctionFormatter` [[source]](../pymdocs/formatters/function_formatter.py#L9)
 
 Base: `BaseFormatter`
 
@@ -1451,14 +1506,14 @@ Formatter for FunctionDefinition objects
 
 - *\_requires*: tuple[FormatterType, ...], data attribute,tuple of
 required formatters (DOCSTRING)
-- *formatters*: (dict[FormatterType, BaseFormatter] | None), formatters
+- *formatters*: (Dict[FormatterType, BaseFormatter] | None), formatters
 to be used inside
 
 
 
 #### Methods
 
-> **pymdocs.formatters.function\_formatter.FunctionFormatter.format**(*self: Any*, *function\_def: FunctionDefinition*, *doc\_path: str*, *package\_name: (str | None)*, *module\_name: (str | None)*, *class\_name: (str | None)*) -> *md.MarkdownContainer* [[source]](../pymdocs/formatters/function_formatter.py#L22)
+> **pymdocs.formatters.function\_formatter.FunctionFormatter.format**(*self: Any*, *function\_def: FunctionDefinition*, *doc\_path: str*, *package\_name: Optional[str]*, *module\_name: Optional[str]*, *class\_name: Optional[str]*) -> *md.MarkdownContainer* [[source]](../pymdocs/formatters/function_formatter.py#L24)
 
 Returns Markdown element for function definition
 
@@ -1485,7 +1540,7 @@ is a class method, None by default
 
 ## Classes
 
-### *class* `pymdocs.formatters.docstring_formatter.DocstringFormatter` [[source]](../pymdocs/formatters/docstring_formatter.py#L6)
+### *class* `pymdocs.formatters.docstring_formatter.DocstringFormatter` [[source]](../pymdocs/formatters/docstring_formatter.py#L8)
 
 Base: `BaseFormatter`
 
@@ -1495,14 +1550,14 @@ Formatter for ClassDefinition objects
 
 - *\_requires*: tuple[FormatterType, ...], data attribute,tuple of
 required formatters
-- *formatters*: (dict[FormatterType, BaseFormatter] | None), formatters
+- *formatters*: (Dict[FormatterType, BaseFormatter] | None), formatters
 to be used inside
 
 
 
 #### Methods
 
-> **pymdocs.formatters.docstring\_formatter.DocstringFormatter.format**(*self: Any*, *docstring: (Docstring | None)*) -> *(md.MarkdownContainer | None)* [[source]](../pymdocs/formatters/docstring_formatter.py#L17)
+> **pymdocs.formatters.docstring\_formatter.DocstringFormatter.format**(*self: Any*, *docstring: Optional[Docstring]*) -> *Optional[md.MarkdownContainer]* [[source]](../pymdocs/formatters/docstring_formatter.py#L19)
 
 Returns Markdown element for function definition
 
@@ -1522,7 +1577,7 @@ Returns Markdown element for function definition
 
 ## Classes
 
-### *class* `pymdocs.formatters.common_formatter.Formatter` [[source]](../pymdocs/formatters/common_formatter.py#L38)
+### *class* `pymdocs.formatters.common_formatter.Formatter` [[source]](../pymdocs/formatters/common_formatter.py#L40)
 
 Base: `BaseFormatter`
 
@@ -1532,14 +1587,14 @@ Common formatter for all objects
 
 - *\_requires*: tuple[FormatterType, ...], data attribute,tuple of
 required formatters
-- *formatters*: (dict[FormatterType, BaseFormatter] | None), formatters
+- *formatters*: (Dict[FormatterType, BaseFormatter] | None), formatters
 to be used inside
 
 
 
 #### Methods
 
-> **pymdocs.formatters.common\_formatter.Formatter.format**(*self: Any*, *obj: AstWrapper*) -> *Any* [[source]](../pymdocs/formatters/common_formatter.py#L64)
+> **pymdocs.formatters.common\_formatter.Formatter.format**(*self: Any*, *obj: AstWrapper*) -> *Any* [[source]](../pymdocs/formatters/common_formatter.py#L66)
 
 Formats object tom Markdown
 
@@ -1584,7 +1639,7 @@ Returns reference Markdown link to object
 
 ## Classes
 
-### *class* `pymdocs.formatters.base.FormatterType` [[source]](../pymdocs/formatters/base.py#L7)
+### *class* `pymdocs.formatters.base.FormatterType` [[source]](../pymdocs/formatters/base.py#L8)
 
 Base: `int, Enum`
 
@@ -1594,7 +1649,7 @@ Enum for formatter types
 
 
 
-### *class* `pymdocs.formatters.base.BaseFormatter` [[source]](../pymdocs/formatters/base.py#L22)
+### *class* `pymdocs.formatters.base.BaseFormatter` [[source]](../pymdocs/formatters/base.py#L23)
 
 
 
@@ -1602,22 +1657,22 @@ Base class for markdown formatters
 
 **Attributes:**
 
-- *\_requires*: tuple[FormatterType, ...], data attribute,tuple of
+- *\_requires*: Tuple[FormatterType, ...], data attribute,tuple of
 required formatters
-- *formatters*: (dict[FormatterType, BaseFormatter] | None), formatters
+- *formatters*: (Dict[FormatterType, BaseFormatter] | None), formatters
 to be used inside
 
 
 
 #### Methods
 
-> **pymdocs.formatters.base.BaseFormatter.format**(*self: Any*, *obj: AstWrapper*) -> *md.MarkdownContainer* [[source]](../pymdocs/formatters/base.py#L58)
+> **pymdocs.formatters.base.BaseFormatter.format**(*self: Any*, *obj: AstWrapper*) -> *md.MarkdownContainer* [[source]](../pymdocs/formatters/base.py#L59)
 
 Returns markdown representation for obj
 
 
 
-> **pymdocs.formatters.base.BaseFormatter.format\_by**(*self: Any*, *formatter\_type: FormatterType*, *obj: AstWrapper*) -> *md.MarkdownContainer* [[source]](../pymdocs/formatters/base.py#L61)
+> **pymdocs.formatters.base.BaseFormatter.format\_by**(*self: Any*, *formatter\_type: FormatterType*, *obj: AstWrapper*) -> *md.MarkdownContainer* [[source]](../pymdocs/formatters/base.py#L62)
 
 Formats object by additional formatter
 
@@ -1642,7 +1697,7 @@ Formats object by additional formatter
 
 ## Classes
 
-### *class* `pymdocs.formatters.module_formatter.ModuleFormatter` [[source]](../pymdocs/formatters/module_formatter.py#L6)
+### *class* `pymdocs.formatters.module_formatter.ModuleFormatter` [[source]](../pymdocs/formatters/module_formatter.py#L8)
 
 Base: `BaseFormatter`
 
@@ -1659,7 +1714,7 @@ to be used inside
 
 #### Methods
 
-> **pymdocs.formatters.module\_formatter.ModuleFormatter.module\_link**(*module\_name: str*) -> *Any* [[source]](../pymdocs/formatters/module_formatter.py#L24)
+> **pymdocs.formatters.module\_formatter.ModuleFormatter.module\_link**(*module\_name: str*) -> *Any* [[source]](../pymdocs/formatters/module_formatter.py#L26)
 
 Returns module link for Contents documentation section
 
@@ -1673,7 +1728,7 @@ Returns module link for Contents documentation section
 
 
 
-> **pymdocs.formatters.module\_formatter.ModuleFormatter.module\_anchor**(*module\_name: str*) -> *Any* [[source]](../pymdocs/formatters/module_formatter.py#L40)
+> **pymdocs.formatters.module\_formatter.ModuleFormatter.module\_anchor**(*module\_name: str*) -> *Any* [[source]](../pymdocs/formatters/module_formatter.py#L42)
 
 Returns module anchor for Contents documentation section
 
@@ -1687,7 +1742,7 @@ Returns module anchor for Contents documentation section
 
 
 
-> **pymdocs.formatters.module\_formatter.ModuleFormatter.format**(*self: Any*, *module\_def: ModuleDefinition*, *doc\_path: str*, *package\_name: (str | None)*) -> *Any* [[source]](../pymdocs/formatters/module_formatter.py#L54)
+> **pymdocs.formatters.module\_formatter.ModuleFormatter.format**(*self: Any*, *module\_def: ModuleDefinition*, *doc\_path: str*, *package\_name: Optional[str]*) -> *Any* [[source]](../pymdocs/formatters/module_formatter.py#L56)
 
 Returns Markdown element for module definition
 

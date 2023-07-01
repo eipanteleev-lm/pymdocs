@@ -1,7 +1,8 @@
 import ast
 import os
+from typing import List, Optional, Tuple, Union
 
-import pymdocs.parsers.docstring.google as doc
+import pymdocs.parsers.docstring as doc
 
 BINOPS = {
     ast.BitOr: '|'
@@ -17,24 +18,25 @@ class AstWrapper:
         path: str, path to file contains element
     """
 
-    _properties: tuple[str, ...] = (
+    _properties: Tuple[str, ...] = (
         'lineno',
     )
 
     def __init__(
         self,
-        ast_element: (ast.AST | None),
+        ast_element: Optional[ast.AST],
         path: str
     ):
         self.ast_element = ast_element
         self.path = path
 
     @property
-    def lineno(self) -> (int | None):
+    def lineno(self) -> Optional[int]:
         """
         Returns line number of the element in file
 
-        Returns: int, line number
+        Returns:
+            int, line number
         """
 
         if self.ast_element is None:
@@ -77,7 +79,7 @@ class AstWrapper:
 class Typing(AstWrapper):
     """Class for Python typing annotations representation"""
 
-    _properties: tuple[str, ...] = (
+    _properties: Tuple[str, ...] = (
         'annotation',
     )
 
@@ -121,7 +123,7 @@ class Typing(AstWrapper):
 class Argument(AstWrapper):
     """Class for function argument representation"""
 
-    _properties: tuple[str, ...] = (
+    _properties: Tuple[str, ...] = (
         'name',
         'type'
     )
@@ -155,7 +157,7 @@ class Argument(AstWrapper):
 class FunctionDefinition(AstWrapper):
     """Class for function representation"""
 
-    _properties: tuple[str, ...] = (
+    _properties: Tuple[str, ...] = (
         'name',
         'arguments',
         'returns',
@@ -176,7 +178,7 @@ class FunctionDefinition(AstWrapper):
         return self.ast_element.name
 
     @property
-    def arguments(self) -> list[Argument]:
+    def arguments(self) -> List[Argument]:
         """Returns list of function arguments"""
         return [
             Argument(element, self.path)
@@ -192,7 +194,7 @@ class FunctionDefinition(AstWrapper):
         )
 
     @property
-    def docstring(self) -> (doc.Docstring | None):
+    def docstring(self) -> Optional[doc.Docstring]:
         """Returns function docstring if exists"""
         if self.ast_element.body:
             potentional_docstring = self.ast_element.body[0]
@@ -205,7 +207,7 @@ class FunctionDefinition(AstWrapper):
 class ClassDefinition(AstWrapper):
     """Class for Python class representation"""
 
-    _properties: tuple[str, ...] = (
+    _properties: Tuple[str, ...] = (
         'name',
         'inherits',
         'methods',
@@ -226,7 +228,7 @@ class ClassDefinition(AstWrapper):
         return self.ast_element.name
 
     @property
-    def inherits(self) -> list[str]:
+    def inherits(self) -> List[str]:
         """Returns class bases"""
         return [
             base.id
@@ -235,7 +237,7 @@ class ClassDefinition(AstWrapper):
         ]
 
     @property
-    def docstring(self) -> (doc.Docstring | None):
+    def docstring(self) -> Optional[doc.Docstring]:
         """Retuns class docstring if exists"""
         if self.ast_element.body:
             potentional_docstring = self.ast_element.body[0]
@@ -245,7 +247,7 @@ class ClassDefinition(AstWrapper):
                     return doc.parse(potentional_docstring_value.value)
 
     @property
-    def methods(self) -> list[FunctionDefinition]:
+    def methods(self) -> List[FunctionDefinition]:
         """Returns list of class methods"""
         return [
             FunctionDefinition(element, self.path)
@@ -257,7 +259,7 @@ class ClassDefinition(AstWrapper):
 class ModuleDefinition(AstWrapper):
     """Class for Python module representation"""
 
-    _properties: tuple[str, ...] = (
+    _properties: Tuple[str, ...] = (
         'name',
         'classes',
         'functions',
@@ -269,22 +271,22 @@ class ModuleDefinition(AstWrapper):
         self.path = path
 
     @property
-    def name(self):
+    def name(self) -> str:
         """Returns module name"""
         return os.path.basename(self.path).replace('.py', '')
 
     @property
-    def docstring(self) -> (doc.Docstring | None):
+    def docstring(self) -> Optional[doc.Docstring]:
         """Retuns module docstring if exists"""
         if self.ast_element.body:
             potentional_docstring = self.ast_element.body[0]
             if isinstance(potentional_docstring, ast.Expr):
                 potentional_docstring_value = potentional_docstring.value
                 if isinstance(potentional_docstring_value, ast.Constant):
-                    return doc.parse(potentional_docstring_value.value)
+                    return parse(potentional_docstring_value.value)
 
     @property
-    def classes(self) -> list[ClassDefinition]:
+    def classes(self) -> List[ClassDefinition]:
         """Returns list of module classes"""
         return [
             ClassDefinition(element, self.path)
@@ -293,7 +295,7 @@ class ModuleDefinition(AstWrapper):
         ]
 
     @property
-    def functions(self) -> list[FunctionDefinition]:
+    def functions(self) -> List[FunctionDefinition]:
         """Returns list of module functions"""
         return [
             FunctionDefinition(element, self.path)
@@ -307,8 +309,8 @@ class PackageDefinition(AstWrapper):
 
     def __init__(
         self,
-        modules: list[ModuleDefinition],
-        packages: 'list[PackageDefinition]',
+        modules: List[ModuleDefinition],
+        packages: 'List[PackageDefinition]',
         path: str
     ):
         self.modules = modules
@@ -316,12 +318,12 @@ class PackageDefinition(AstWrapper):
         self.path = path
 
     @property
-    def name(self):
+    def name(self) -> str:
         """Returns package name"""
         return os.path.basename(self.path)
 
 
-def _is_python_module(path: str):
+def _is_python_module(path: str) -> bool:
     """Simple check if file is python module"""
     if os.path.isfile(path):
         if path.endswith('.py'):
@@ -348,7 +350,7 @@ def parse_module(path: str) -> ModuleDefinition:
     return ModuleDefinition(tree, path)
 
 
-def parse(path: str) -> (PackageDefinition | ModuleDefinition | None):
+def parse(path: str) -> Optional[Union[PackageDefinition, ModuleDefinition]]:
     """
     Parses Python module or package content
 

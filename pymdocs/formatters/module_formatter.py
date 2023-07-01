@@ -1,3 +1,5 @@
+from typing import Optional, Tuple
+
 import pymdocs.formatters.markdown_constructor as md
 from pymdocs.formatters.base import BaseFormatter, FormatterType
 from pymdocs.parsers.ast import ModuleDefinition
@@ -14,7 +16,7 @@ class ModuleFormatter(BaseFormatter):
             to be used inside
     """
 
-    _requires: tuple[FormatterType, ...] = (
+    _requires: Tuple[FormatterType, ...] = (
         FormatterType.DOCSTRING,
         FormatterType.FUNCTION,
         FormatterType.CLASS
@@ -55,7 +57,7 @@ class ModuleFormatter(BaseFormatter):
         self,
         module_def: ModuleDefinition,
         doc_path: str,
-        package_name: (str | None) = None
+        package_name: Optional[str] = None
     ):
         """
         Returns Markdown element for module definition

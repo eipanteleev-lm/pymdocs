@@ -1,6 +1,8 @@
+from typing import Optional
+
 import pymdocs.formatters.markdown_constructor as md
 from pymdocs.formatters.base import BaseFormatter
-from pymdocs.parsers.docstring.google import Docstring
+from pymdocs.parsers.docstring.base import Docstring
 
 
 class DocstringFormatter(BaseFormatter):
@@ -10,14 +12,14 @@ class DocstringFormatter(BaseFormatter):
     Attributes:
         _requires: tuple[FormatterType, ...], data attribute,tuple of
             required formatters
-        formatters: (dict[FormatterType, BaseFormatter] | None), formatters
+        formatters: (Dict[FormatterType, BaseFormatter] | None), formatters
             to be used inside
     """
 
     def format(
         self,
-        docstring: (Docstring | None)
-    ) -> (md.MarkdownContainer | None):
+        docstring: Optional[Docstring]
+    ) -> Optional[md.MarkdownContainer]:
         """
         Returns Markdown element for function definition
 

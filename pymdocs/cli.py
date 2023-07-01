@@ -1,5 +1,6 @@
 import argparse
 import os
+from typing import Optional
 
 from pymdocs.formatters.common_formatter import Formatter
 from pymdocs.parsers.ast import parse
@@ -19,7 +20,7 @@ class Pymdocs:
         self,
         source_path: str,
         doc_path: str,
-        formatter: (Formatter | None) = None
+        formatter: Optional[Formatter] = None
     ):
         self.source_path = source_path
         self.doc_path = doc_path
@@ -38,7 +39,7 @@ class Pymdocs:
         with open(path, 'w') as f:
             f.write(md)
 
-    def doc(self):
+    def doc(self) -> None:
         """Generates Code Reference for python code"""
         if not os.path.exists(self.source_path):
             raise FileNotFoundError(
@@ -55,7 +56,7 @@ class Pymdocs:
         self._save(md.render(), self.doc_path)
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
 
     parser.add_argument(

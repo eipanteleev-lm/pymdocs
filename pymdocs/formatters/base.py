@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Dict, List, Optional, Tuple
 
 import pymdocs.formatters.markdown_constructor as md
 from pymdocs.parsers.ast import AstWrapper
@@ -13,7 +14,7 @@ class FormatterType(int, Enum):
     PACKAGE = 5
 
 
-FORMATTERS_HIERARCHY = list(
+FORMATTERS_HIERARCHY: List[FormatterType] = list(
     member
     for member in sorted(FormatterType, key=lambda x: x.value)
 )
@@ -24,17 +25,17 @@ class BaseFormatter:
     Base class for markdown formatters
 
     Attributes:
-        _requires: tuple[FormatterType, ...], data attribute,tuple of
+        _requires: Tuple[FormatterType, ...], data attribute,tuple of
             required formatters
-        formatters: (dict[FormatterType, BaseFormatter] | None), formatters
+        formatters: (Dict[FormatterType, BaseFormatter] | None), formatters
             to be used inside
     """
 
-    _requires: tuple[FormatterType, ...] = ()
+    _requires: Tuple[FormatterType, ...] = ()
 
     def _validate(
         self,
-        formatters: '(dict[FormatterType, BaseFormatter] | None)'
+        formatters: 'Optional[Dict[FormatterType, BaseFormatter]]'
     ):
         """
         Validates that all required formatters passed
@@ -50,7 +51,7 @@ class BaseFormatter:
 
     def __init__(
         self,
-        formatters: '(dict[FormatterType, BaseFormatter] | None)'
+        formatters: 'Optional[Dict[FormatterType, BaseFormatter]]' = None
     ):
         self.formatters = (formatters or [])
         self._validate(self.formatters)

@@ -1,3 +1,5 @@
+from typing import List, Tuple
+
 import pymdocs.formatters.markdown_constructor as md
 from pymdocs.formatters.base import BaseFormatter, FormatterType
 from pymdocs.parsers.ast import PackageDefinition
@@ -14,7 +16,7 @@ class PackageFormatter(BaseFormatter):
             to be used inside
     """
 
-    _requires: tuple[FormatterType, ...] = (
+    _requires: Tuple[FormatterType, ...] = (
         FormatterType.DOCSTRING,
         FormatterType.FUNCTION,
         FormatterType.CLASS,
@@ -26,7 +28,7 @@ class PackageFormatter(BaseFormatter):
         package_def: PackageDefinition,
         doc_path: str,
         prefix: str = ''
-    ) -> list[tuple[md.MarkdownContainer, md.Link]]:
+    ) -> List[Tuple[md.MarkdownContainer, md.Link]]:
         """
         Formats package definition as a list of formatted module definitions
         recursively

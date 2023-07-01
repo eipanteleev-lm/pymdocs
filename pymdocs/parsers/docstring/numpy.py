@@ -1,7 +1,7 @@
 import inspect
 import re
 from enum import Enum
-from typing import Dict, Type
+from typing import Dict, Type, TypeVar
 
 from pymdocs.parsers.docstring.base import (
     Docstring,
@@ -24,17 +24,22 @@ from pymdocs.parsers.docstring.helpers import iter_split
 
 
 class DocstringSections(str, Enum):
-    ARGS = 'Args'
+    ARGS = 'Parameters'
     ATTRIBUTES = 'Attributes'
     EXAMPLES = 'Examples'
+    NOTES = 'Notes'
     RAISES = 'Raises'
     RETURNS = 'Returns'
+    SEE_ALSO = 'See Also'
     YIELDS = 'Yields'
 
 
 SINGLE_SECTIONS = {
-    DocstringSections.EXAMPLES
+    DocstringSections.EXAMPLES,
+    DocstringSections.NOTES,
+    DocstringSections.SEE_ALSO
 }
+
 
 DOCSTRING_SECTION_PATTERN = re.compile(
     r'^(?P<type>('
@@ -42,7 +47,7 @@ DOCSTRING_SECTION_PATTERN = re.compile(
         member.value
         for member in DocstringSections
     )
-    + r')):',
+    + r'))[ \t]*\n----*',
     re.MULTILINE
 )
 
@@ -54,20 +59,20 @@ DOCSTRING_TYPING_ANNOTATION = re.compile(
 )
 
 DOCSTRING_ARG_PATTERN = re.compile(
-    r'^[ \t]+(?P<name>(\*{1,2})?[A-Za-z_][A-Za-z0-9_]*)'
-    rf'([ \t]+{DOCSTRING_TYPING_ANNOTATION})?[ \t]*:',
+    r'^(?P<name>(\*{1,2})?[A-Za-z_][A-Za-z0-9_]*)[ \t]*:'
+    rf'([ \t]*{DOCSTRING_TYPING_ANNOTATION}[ \t]*)?[ \t]*\n',
     re.MULTILINE
 )
 
 DOCSTRING_EXAMPLES_PATTERN = re.compile(r'(?!.*)')
 
 DOCSTRING_RAISES_PATTERN = re.compile(
-    r'^[ \t]+(?P<exception>[A-Za-z_][A-Za-z0-9_]*)\s*:',
+    r'^(?P<exception>[A-Za-z_][A-Za-z0-9_]*)[ \t]*\n',
     re.MULTILINE
 )
 
 DOCSTRING_RETURNS_PATTERN = re.compile(
-    rf'^[ \t]+{DOCSTRING_TYPING_ANNOTATION.pattern}\s*:',
+    rf'^{DOCSTRING_TYPING_ANNOTATION.pattern}[ \t]*\n',
     re.MULTILINE
 )
 
@@ -80,6 +85,7 @@ SECTION_ELEMENT_PATTERN_MAP: Dict[DocstringSections, re.Pattern] = {
     DocstringSections.RETURNS: DOCSTRING_RETURNS_PATTERN,
     DocstringSections.YIELDS: DOCSTRING_RETURNS_PATTERN
 }
+
 
 SECTION_ELEMENT_CLASS_MAP: Dict[DocstringSections, Type[DocstringElement]] = {
     DocstringSections.ARGS: DocstringArg,
@@ -104,12 +110,19 @@ def parse_section(text: str, section_type: str) -> DocstringSection:
     """
     Parses section from text by section type
 
-    Args:
-        text: str, text to parse
-        section_type: str, section type (Args, Attributes, Raises, etc.)
+    Parameters
+    ----------
 
-    Returns:
-        DocstringSection: DocstringSection object
+    text: str
+        text to parse
+    section_type: str
+        section type (Parameters, Attributes, Raises, etc.)
+
+    Returns
+    -------
+
+    DocstringSection
+        DocstringSection object
     """
 
     element_pattern = SECTION_ELEMENT_PATTERN_MAP[section_type]
@@ -138,13 +151,17 @@ def parse_section(text: str, section_type: str) -> DocstringSection:
 
 def parse(docstring: str) -> Docstring:
     """
-    Parses Google Style docstring
+    Parses Numpy Style docstring
 
-    Args:
-        docstring: Google Style docstring
+    Parameters
+    ----------
+    docstring: str
+        Google Style docstring
 
-    Returns:
-        Docstring: Docstring object
+    Returns
+    -------
+    Docstring
+        Docstring object
     """
     cleared_docstring = inspect.cleandoc(docstring)
     description = None

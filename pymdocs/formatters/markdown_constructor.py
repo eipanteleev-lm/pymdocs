@@ -1,6 +1,6 @@
 import urllib.parse
 from enum import Enum
-from typing import Any
+from typing import Any, List, Union
 
 MARKDOWN_QUOTE_SYMBOLS = list('_*`')
 
@@ -11,10 +11,10 @@ class MarkdownContainer:
         other elements
 
     Attributes:
-        elemens: list[MarkdownContainer | str], list of inner elements,
+        elemens: List[Union[MarkdownContainer, str]], list of inner elements,
             could be another MarkdownContainer or python string
-        sep: (MarkdownContainer | str), elements separator, could be another
-            MarkdownContainer or python string
+        sep: Union[MarkdownContainer, str], elements separator, could be
+            another MarkdownContainer or python string
 
     Examples:
         Rendering multiple lines splitted by paragraph break
@@ -40,20 +40,20 @@ class MarkdownContainer:
             f'Obj of {type(element)} is not MarkdownContainer or string'
         )
 
-    def _validate_elements(self, elements: list[Any]) -> list[Any]:
+    def _validate_elements(self, elements: List[Any]) -> List[Any]:
         for element in elements:
             self._validate(element)
 
         return elements
 
-    def _validate_sep(self, sep: '(MarkdownContainer | str)'):
+    def _validate_sep(self, sep: 'Union[MarkdownContainer, str]'):
         self._validate(sep)
         return sep
 
     def __init__(
         self,
-        elements: 'list[MarkdownContainer | str]',
-        sep: '(MarkdownContainer | str)' = ''
+        elements: 'List[Union[MarkdownContainer, str]]',
+        sep: 'Union[MarkdownContainer, str]' = ''
     ):
         self.elements = self._validate_elements(elements)
         self.sep = self._validate_sep(sep)
@@ -191,8 +191,8 @@ class Header(MarkdownContainer):
     Base class for Markdown header element
 
     Attributes:
-        elements: list[MarkdownContainer | str], list of inner elements
-        sep: (MarkdownContainer | str), elements separator
+        elements: List[Union[MarkdownContainer, str]], list of inner elements
+        sep: Union[MarkdownContainer, str], elements separator
         level: int, optional, level of the header, 1 by default
 
     Examples:
@@ -207,8 +207,8 @@ class Header(MarkdownContainer):
 
     def __init__(
         self,
-        elements: list[MarkdownContainer | str],
-        sep: (MarkdownContainer | str) = '',
+        elements: List[Union[MarkdownContainer, str]],
+        sep: Union[MarkdownContainer, str] = '',
         level: int = 1
     ):
         self.level = level
@@ -228,8 +228,8 @@ class H1(Header):
 
     def __init__(
         self,
-        elements: list[MarkdownContainer | str],
-        sep: (MarkdownContainer | str) = '',
+        elements: List[Union[MarkdownContainer, str]],
+        sep: Union[MarkdownContainer, str] = '',
     ):
         super().__init__(elements, sep, 1)
 
@@ -239,8 +239,8 @@ class H2(Header):
 
     def __init__(
         self,
-        elements: list[MarkdownContainer | str],
-        sep: (MarkdownContainer | str) = '',
+        elements: List[Union[MarkdownContainer, str]],
+        sep: Union[MarkdownContainer, str] = '',
     ):
         super().__init__(elements, sep, 2)
 
@@ -250,8 +250,8 @@ class H3(Header):
 
     def __init__(
         self,
-        elements: list[MarkdownContainer | str],
-        sep: (MarkdownContainer | str) = '',
+        elements: List[Union[MarkdownContainer, str]],
+        sep: Union[MarkdownContainer, str] = '',
     ):
         super().__init__(elements, sep, 3)
 
@@ -261,8 +261,8 @@ class H4(Header):
 
     def __init__(
         self,
-        elements: list[MarkdownContainer | str],
-        sep: (MarkdownContainer | str) = '',
+        elements: List[Union[MarkdownContainer, str]],
+        sep: Union[MarkdownContainer, str] = '',
     ):
         super().__init__(elements, sep, 4)
 
@@ -272,8 +272,8 @@ class H5(Header):
 
     def __init__(
         self,
-        elements: list[MarkdownContainer | str],
-        sep: (MarkdownContainer | str) = '',
+        elements: List[Union[MarkdownContainer, str]],
+        sep: Union[MarkdownContainer, str] = '',
     ):
         super().__init__(elements, sep, 5)
 
@@ -283,8 +283,8 @@ class H6(Header):
 
     def __init__(
         self,
-        elements: list[MarkdownContainer | str],
-        sep: (MarkdownContainer | str) = '',
+        elements: List[Union[MarkdownContainer, str]],
+        sep: Union[MarkdownContainer, str] = '',
     ):
         super().__init__(elements, sep, 6)
 
@@ -381,7 +381,7 @@ class OrderedList(MarkdownContainer):
     Class for Markdown ordered list element
 
     Attributes:
-        elements: list[MarkdownContainer | str], list of inner elements
+        elements: List[Union[MarkdownContainer, str]], list of inner elements
 
     Examples:
         Rendering ordered list
@@ -393,7 +393,7 @@ class OrderedList(MarkdownContainer):
         3. third item
     """
 
-    def __init__(self, elements: list[MarkdownContainer | str]):
+    def __init__(self, elements: List[Union[MarkdownContainer, str]]):
         self.elements = elements
 
     def render(self) -> str:
@@ -414,7 +414,7 @@ class UnorderedList(MarkdownContainer):
     Class for Markdown unordered list element
 
     Attributes:
-        elements: list[MarkdownContainer | str], list of inner elements
+        elements: List[Union[MarkdownContainer, str]], list of inner elements
 
     Examples:
         Rendering unordered list
@@ -444,15 +444,15 @@ class TaskItem(MarkdownContainer):
     Class for Markdown task list item element
 
     Attributes:
-        elements: list[MarkdownContainer | str], list of inner elements
-        sep: (MarkdownContainer | str), elements separator
+        elements: List[Union[MarkdownContainer, str]], list of inner elements
+        sep: Union[MarkdownContainer, str], elements separator
         is_done: bool, is the task done or not, False by default
     """
 
     def __init__(
         self,
-        elements: list[MarkdownContainer | str],
-        sep: (MarkdownContainer | str) = '',
+        elements: List[Union[MarkdownContainer, str]],
+        sep: Union[MarkdownContainer, str] = '',
         is_done: bool = False
     ):
         self.is_done = is_done
@@ -513,8 +513,8 @@ class Code(MarkdownContainer):
     Class for Markdown multiline code block
 
     Attributes:
-        elements: list[MarkdownContainer | str], list of inner elements
-        sep: (MarkdownContainer | str), elements separator
+        elements: List[Union[MarkdownContainer, str]], list of inner elements
+        sep: Union[MarkdownContainer, str], elements separator
         language: str, language to highlight in code block
 
     Examples:
@@ -536,8 +536,8 @@ class Code(MarkdownContainer):
 
     def __init__(
         self,
-        elements: list[MarkdownContainer | str],
-        sep: (MarkdownContainer | str) = '',
+        elements: List[Union[MarkdownContainer, str]],
+        sep: Union[MarkdownContainer, str] = '',
         language: str = ''
     ):
         self.language = language
@@ -567,7 +567,7 @@ class TableRow(MarkdownContainer):
     Class for Markdown table row element
 
     Attributes:
-        elements: list[MarkdownContainer | str], table row elements
+        elements: List[Union[MarkdownContainer, str]], table row elements
 
     Examples:
         Rendering table row
@@ -577,7 +577,7 @@ class TableRow(MarkdownContainer):
         1 | one
     """
 
-    def __init__(self, elements: list[MarkdownContainer | str]):
+    def __init__(self, elements: List[Union[MarkdownContainer, str]]):
         super().__init__(elements, sep=_TABLE_BORDER)
 
 

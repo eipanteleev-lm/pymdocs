@@ -1,7 +1,7 @@
 import inspect
 import re
 from enum import Enum
-from typing import Dict, Type, TypeVar
+from typing import Dict
 
 from pymdocs.parsers.docstring.base import (
     Docstring,
@@ -9,7 +9,6 @@ from pymdocs.parsers.docstring.base import (
     DocstringArgsSection,
     DocstringAttribute,
     DocstringAttributesSection,
-    DocstringElement,
     DocstringExample,
     DocstringExamplesSection,
     DocstringRaises,
@@ -77,7 +76,7 @@ DOCSTRING_RETURNS_PATTERN = re.compile(
 )
 
 
-SECTION_ELEMENT_PATTERN_MAP: Dict[DocstringSections, re.Pattern] = {
+SECTION_ELEMENT_PATTERN_MAP: Dict[str, re.Pattern] = {
     DocstringSections.ARGS: DOCSTRING_ARG_PATTERN,
     DocstringSections.ATTRIBUTES: DOCSTRING_ARG_PATTERN,
     DocstringSections.EXAMPLES: DOCSTRING_EXAMPLES_PATTERN,
@@ -87,7 +86,7 @@ SECTION_ELEMENT_PATTERN_MAP: Dict[DocstringSections, re.Pattern] = {
 }
 
 
-SECTION_ELEMENT_CLASS_MAP: Dict[DocstringSections, Type[DocstringElement]] = {
+SECTION_ELEMENT_CLASS_MAP: Dict[str, type] = {
     DocstringSections.ARGS: DocstringArg,
     DocstringSections.ATTRIBUTES: DocstringAttribute,
     DocstringSections.EXAMPLES: DocstringExample,
@@ -96,7 +95,7 @@ SECTION_ELEMENT_CLASS_MAP: Dict[DocstringSections, Type[DocstringElement]] = {
     DocstringSections.YIELDS: DocstringYiedls
 }
 
-SECTION_CLASS_MAP: Dict[str, Type[DocstringSection]] = {
+SECTION_CLASS_MAP: Dict[str, type] = {
     DocstringSections.ARGS: DocstringArgsSection,
     DocstringSections.ATTRIBUTES: DocstringAttributesSection,
     DocstringSections.EXAMPLES: DocstringExamplesSection,

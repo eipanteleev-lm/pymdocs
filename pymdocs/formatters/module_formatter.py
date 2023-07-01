@@ -1,11 +1,11 @@
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 import pymdocs.formatters.markdown_constructor as md
 from pymdocs.formatters.base import BaseFormatter, FormatterType
 from pymdocs.parsers.ast import ModuleDefinition
 
 
-class ModuleFormatter(BaseFormatter):
+class ModuleFormatter(BaseFormatter[ModuleDefinition]):
     """
     Formatter for ModuleDefinition objects
 
@@ -55,8 +55,8 @@ class ModuleFormatter(BaseFormatter):
 
     def format(
         self,
-        module_def: ModuleDefinition,
-        doc_path: str,
+        obj: ModuleDefinition,
+        doc_path: str = '',
         package_name: Optional[str] = None
     ):
         """
@@ -75,12 +75,12 @@ class ModuleFormatter(BaseFormatter):
             element
             for element in (
                 package_name,
-                module_def.name
+                obj.name
             )
             if element
         )
 
-        md_list = [
+        md_list: List[md.MarkdownElement] = [
             md.H1([
                 self.module_anchor(module_name),
                 md.Italic(['module']),
@@ -89,7 +89,7 @@ class ModuleFormatter(BaseFormatter):
             ])
         ]
 
-        if module_def.classes:
+        if obj.classes:
             md_list += [
                 md.H2(['Classes']),
                 md.MarkdownContainer(
@@ -99,14 +99,14 @@ class ModuleFormatter(BaseFormatter):
                             class_def,
                             doc_path=doc_path,
                             package_name=package_name,
-                            module_name=module_def.name
+                            module_name=obj.name
                         )
-                        for class_def in module_def.classes
+                        for class_def in obj.classes
                     ]
                 )
             ]
 
-        if module_def.functions:
+        if obj.functions:
             md_list += [
                 md.H2(['Functions']),
                 md.MarkdownContainer(
@@ -116,9 +116,9 @@ class ModuleFormatter(BaseFormatter):
                             function_def,
                             doc_path=doc_path,
                             package_name=package_name,
-                            module_name=module_def.name
+                            module_name=obj.name
                         )
-                        for function_def in module_def.functions
+                        for function_def in obj.functions
                         if not function_def.name.startswith('_')
                     ]
                 )

@@ -1,5 +1,6 @@
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
+import pymdocs.formatters.markdown_constructor as md
 from pymdocs.formatters.base import (
     BaseFormatter,
     FORMATTERS_HIERARCHY,
@@ -11,7 +12,6 @@ from pymdocs.formatters.function_formatter import FunctionFormatter
 from pymdocs.formatters.module_formatter import ModuleFormatter
 from pymdocs.formatters.package_formatter import PackageFormatter
 from pymdocs.parsers.ast import (
-    AstWrapper,
     ClassDefinition,
     FunctionDefinition,
     ModuleDefinition,
@@ -20,7 +20,7 @@ from pymdocs.parsers.ast import (
 from pymdocs.parsers.docstring.base import Docstring
 
 
-_FORMATTERS_TARGET_MAP = {
+_FORMATTERS_TARGET_MAP: Dict[FormatterType, type] = {
     FormatterType.DOCSTRING: Docstring,
     FormatterType.FUNCTION: FunctionDefinition,
     FormatterType.CLASS: ClassDefinition,
@@ -28,7 +28,7 @@ _FORMATTERS_TARGET_MAP = {
     FormatterType.PACKAGE: PackageDefinition
 }
 
-_DEFAULT_FORMATTERS = {
+_DEFAULT_FORMATTERS: Dict[FormatterType, type] = {
     FormatterType.DOCSTRING: DocstringFormatter,
     FormatterType.FUNCTION: FunctionFormatter,
     FormatterType.CLASS: ClassFormatter,
@@ -63,16 +63,16 @@ class Formatter(BaseFormatter):
 
         super().__init__(formatters)
 
-    def format(self, obj: AstWrapper, **kwargs):
+    def format(self, obj: Any, **kwargs) -> md.MarkdownElement:
         """
         Formats object tom Markdown
 
         Args:
-            obj: AstWrapper, object needed to format
+            obj: Any, object needed to format
             **kwargs: additional arguments for object formatter
 
         Returns:
-            MarkdownContainer: Markdown element for object
+            MarkdownElement: Markdown element for object
 
         Raises:
             ValueError: if object formatter is not set

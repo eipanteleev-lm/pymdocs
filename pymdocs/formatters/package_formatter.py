@@ -2,10 +2,11 @@ from typing import List, Tuple
 
 import pymdocs.formatters.markdown_constructor as md
 from pymdocs.formatters.base import BaseFormatter, FormatterType
+from pymdocs.formatters.module_formatter import ModuleFormatter
 from pymdocs.parsers.ast import PackageDefinition
 
 
-class PackageFormatter(BaseFormatter):
+class PackageFormatter(BaseFormatter[PackageDefinition]):
     """
     Formatter for ModuleDefinition objects
 
@@ -57,7 +58,9 @@ class PackageFormatter(BaseFormatter):
 
             module_name = f'{package_name}.{module_def.name}'
 
-            module_formatter = self.formatters[FormatterType.MODULE]
+            module_formatter: ModuleFormatter = (
+                self.formatters[FormatterType.MODULE]
+            )
 
             module_md = module_formatter.format(
                 module_def,
@@ -81,9 +84,9 @@ class PackageFormatter(BaseFormatter):
 
     def format(
         self,
-        package_def: PackageDefinition,
-        doc_path: str
-    ):
+        obj: PackageDefinition,
+        doc_path: str = ''
+    ) -> md.MarkdownElement:
         """
         Returns Markdown element for package definition
 
@@ -96,12 +99,12 @@ class PackageFormatter(BaseFormatter):
         """
 
         modules_md = self.flatten_modules(
-            package_def,
+            obj,
             doc_path
         )
 
         return md.MarkdownContainer([
-            md.H1(['Package', md.WHITESPACE, md.Quote(package_def.name)]),
+            md.H1(['Package', md.WHITESPACE, md.Quote(obj.name)]),
             md.H2(['Contents']),
             md.Paragraph([
                 md.UnorderedList([

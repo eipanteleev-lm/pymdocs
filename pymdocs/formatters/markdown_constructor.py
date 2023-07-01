@@ -1,20 +1,38 @@
 import urllib.parse
 from enum import Enum
-from typing import Any, List, Union
+from typing import Optional, Sequence, Union
 
 MARKDOWN_QUOTE_SYMBOLS = list('_*`')
 
 
-class MarkdownContainer:
+class MarkdownElement:
+    """Base class for Markdown elements"""
+
+    def render(self) -> str:
+        """Method for rendering Markdown"""
+        return ''
+
+
+class StringLiteral(MarkdownElement):
+    """Helper class for user defined strings"""
+
+    def __init__(self, text: str):
+        self.text = text
+
+    def render(self):
+        return self.text
+
+
+class MarkdownContainer(MarkdownElement):
     """
     Base class for list of Markdown elements, also usefull for groupping
         other elements
 
     Attributes:
-        elemens: List[Union[MarkdownContainer, str]], list of inner elements,
-            could be another MarkdownContainer or python string
-        sep: Union[MarkdownContainer, str], elements separator, could be
-            another MarkdownContainer or python string
+        elemens: Sequence[Union[MarkdownElement, str]], list of inner elements,
+            could be another MarkdownElement or python string
+        sep: Union[MarkdownElement, str], elements separator, could be
+            another MarkdownElement or python string
 
     Examples:
         Rendering multiple lines splitted by paragraph break
@@ -31,64 +49,49 @@ class MarkdownContainer:
         second paragraph
     """
 
-    @staticmethod
-    def _validate(element: Any) -> Any:
-        if isinstance(element, (MarkdownContainer, str)):
-            return element
-
-        raise ValueError(
-            f'Obj of {type(element)} is not MarkdownContainer or string'
-        )
-
-    def _validate_elements(self, elements: List[Any]) -> List[Any]:
-        for element in elements:
-            self._validate(element)
-
-        return elements
-
-    def _validate_sep(self, sep: 'Union[MarkdownContainer, str]'):
-        self._validate(sep)
-        return sep
-
     def __init__(
         self,
-        elements: 'List[Union[MarkdownContainer, str]]',
-        sep: 'Union[MarkdownContainer, str]' = ''
+        elements: Sequence[Union[MarkdownElement, str]],
+        sep: Union[MarkdownElement, str] = ''
     ):
-        self.elements = self._validate_elements(elements)
-        self.sep = self._validate_sep(sep)
+        self.elements = [
+            (
+                element
+                if isinstance(element, MarkdownElement)
+                else StringLiteral(element)
+            )
+            for element in elements
+        ]
+
+        self.sep = (
+            sep
+            if isinstance(sep, MarkdownElement)
+            else StringLiteral(sep)
+        )
 
     def render(self) -> str:
         """
         Returns Markdown representation all inner elements,
         joined by separator
         """
-        sep = (
-            self.sep.render()
-            if isinstance(self.sep, MarkdownContainer)
-            else self.sep
-        )
 
+        sep = self.sep.render()
         return sep.join(
-            (
-                element.render()
-                if isinstance(element, MarkdownContainer)
-                else element
-            )
+            element.render()
             for element in self.elements
         )
 
 
-WHITESPACE = MarkdownContainer([' '])
-NEWLINE = MarkdownContainer(['\n'])
-PARAGRAPH_BREAK = MarkdownContainer(['\n\n'])
-LINE = MarkdownContainer(['\n\n---\n\n'])
+WHITESPACE = StringLiteral(' ')
+NEWLINE = StringLiteral('\n')
+PARAGRAPH_BREAK = StringLiteral('\n\n')
+LINE = StringLiteral('\n\n---\n\n')
 
 # Line break for table cells
-HTML_LINEBREAK = MarkdownContainer(['</br>'])
+HTML_LINEBREAK = StringLiteral('</br>')
 
 
-class Quote(MarkdownContainer):
+class Quote(StringLiteral):
     """
     Class for quoting Markdown symbols
 
@@ -103,9 +106,6 @@ class Quote(MarkdownContainer):
         text\\_with\\_dashes
     """
 
-    def __init__(self, text: str):
-        self.text = text
-
     def render(self) -> str:
         """Returns markdown quoted text"""
         quoted_text = self.text
@@ -116,7 +116,7 @@ class Quote(MarkdownContainer):
         return quoted_text
 
 
-class Link(MarkdownContainer):
+class Link(StringLiteral):
     """
     Class for Markdown link element
 
@@ -139,7 +139,7 @@ class Link(MarkdownContainer):
         link: str,
         quote: bool = False
     ):
-        self.text = text
+        super().__init__(text)
         self.link = link
         self.quote = quote
 
@@ -191,7 +191,8 @@ class Header(MarkdownContainer):
     Base class for Markdown header element
 
     Attributes:
-        elements: List[Union[MarkdownContainer, str]], list of inner elements
+        elements: Sequence[Union[MarkdownContainer, str]], list of inner
+            elements
         sep: Union[MarkdownContainer, str], elements separator
         level: int, optional, level of the header, 1 by default
 
@@ -207,8 +208,8 @@ class Header(MarkdownContainer):
 
     def __init__(
         self,
-        elements: List[Union[MarkdownContainer, str]],
-        sep: Union[MarkdownContainer, str] = '',
+        elements: Sequence[Union[MarkdownElement, str]],
+        sep: Union[MarkdownElement, str] = '',
         level: int = 1
     ):
         self.level = level
@@ -228,8 +229,8 @@ class H1(Header):
 
     def __init__(
         self,
-        elements: List[Union[MarkdownContainer, str]],
-        sep: Union[MarkdownContainer, str] = '',
+        elements: Sequence[Union[MarkdownElement, str]],
+        sep: Union[MarkdownElement, str] = '',
     ):
         super().__init__(elements, sep, 1)
 
@@ -239,8 +240,8 @@ class H2(Header):
 
     def __init__(
         self,
-        elements: List[Union[MarkdownContainer, str]],
-        sep: Union[MarkdownContainer, str] = '',
+        elements: Sequence[Union[MarkdownElement, str]],
+        sep: Union[MarkdownElement, str] = '',
     ):
         super().__init__(elements, sep, 2)
 
@@ -250,8 +251,8 @@ class H3(Header):
 
     def __init__(
         self,
-        elements: List[Union[MarkdownContainer, str]],
-        sep: Union[MarkdownContainer, str] = '',
+        elements: Sequence[Union[MarkdownElement, str]],
+        sep: Union[MarkdownElement, str] = '',
     ):
         super().__init__(elements, sep, 3)
 
@@ -261,8 +262,8 @@ class H4(Header):
 
     def __init__(
         self,
-        elements: List[Union[MarkdownContainer, str]],
-        sep: Union[MarkdownContainer, str] = '',
+        elements: Sequence[Union[MarkdownElement, str]],
+        sep: Union[MarkdownElement, str] = '',
     ):
         super().__init__(elements, sep, 4)
 
@@ -272,8 +273,8 @@ class H5(Header):
 
     def __init__(
         self,
-        elements: List[Union[MarkdownContainer, str]],
-        sep: Union[MarkdownContainer, str] = '',
+        elements: Sequence[Union[MarkdownElement, str]],
+        sep: Union[MarkdownElement, str] = '',
     ):
         super().__init__(elements, sep, 5)
 
@@ -283,8 +284,8 @@ class H6(Header):
 
     def __init__(
         self,
-        elements: List[Union[MarkdownContainer, str]],
-        sep: Union[MarkdownContainer, str] = '',
+        elements: Sequence[Union[MarkdownElement, str]],
+        sep: Union[MarkdownElement, str] = '',
     ):
         super().__init__(elements, sep, 6)
 
@@ -381,7 +382,8 @@ class OrderedList(MarkdownContainer):
     Class for Markdown ordered list element
 
     Attributes:
-        elements: List[Union[MarkdownContainer, str]], list of inner elements
+        elements: Sequence[Union[MarkdownContainer, str]], list of inner
+            elements
 
     Examples:
         Rendering ordered list
@@ -393,18 +395,14 @@ class OrderedList(MarkdownContainer):
         3. third item
     """
 
-    def __init__(self, elements: List[Union[MarkdownContainer, str]]):
-        self.elements = elements
+    def __init__(self, elements: Sequence[Union[MarkdownElement, str]]):
+        super().__init__(elements)
 
     def render(self) -> str:
         """Returns Markdown ordered list with inner elements as items"""
         return '\n'.join(
             f'{i}. '
-            + (
-                element.render()
-                if isinstance(element, MarkdownContainer)
-                else f'{element}'
-            )
+            + element.render()
             for i, element in enumerate(self.elements, 1)
         )
 
@@ -414,7 +412,8 @@ class UnorderedList(MarkdownContainer):
     Class for Markdown unordered list element
 
     Attributes:
-        elements: List[Union[MarkdownContainer, str]], list of inner elements
+        elements: Sequence[Union[MarkdownContainer, str]], list of inner
+            elements
 
     Examples:
         Rendering unordered list
@@ -426,16 +425,14 @@ class UnorderedList(MarkdownContainer):
         - third item
     """
 
+    def __init__(self, elements: Sequence[Union[MarkdownElement, str]]):
+        super().__init__(elements)
+
     def render(self) -> str:
         """Returns Markdown unordered list with inner elements as items"""
         return '\n'.join(
-            '- '
-            + (
-                element.render()
-                if isinstance(element, MarkdownContainer)
-                else f'{element}'
-            )
-            for i, element in enumerate(self.elements, 1)
+            f'- {element.render()}'
+            for element in self.elements
         )
 
 
@@ -444,19 +441,20 @@ class TaskItem(MarkdownContainer):
     Class for Markdown task list item element
 
     Attributes:
-        elements: List[Union[MarkdownContainer, str]], list of inner elements
+        elements: Sequence[Union[MarkdownContainer, str]], list of inner
+            elements
         sep: Union[MarkdownContainer, str], elements separator
         is_done: bool, is the task done or not, False by default
     """
 
     def __init__(
         self,
-        elements: List[Union[MarkdownContainer, str]],
-        sep: Union[MarkdownContainer, str] = '',
+        elements: Sequence[Union[MarkdownElement, str]],
+        sep: Union[MarkdownElement, str] = '',
         is_done: bool = False
     ):
-        self.is_done = is_done
         super().__init__(elements, sep)
+        self.is_done = is_done
 
     def render(self):
         """Returns Markdown task list item with inner elements"""
@@ -487,7 +485,7 @@ class TaskList(UnorderedList):
         - [ ] Third task
     """
 
-    def __init__(self, elements: list[TaskItem]):
+    def __init__(self, elements: Sequence[TaskItem]):
         super().__init__(elements)
 
 
@@ -513,7 +511,8 @@ class Code(MarkdownContainer):
     Class for Markdown multiline code block
 
     Attributes:
-        elements: List[Union[MarkdownContainer, str]], list of inner elements
+        elements: Sequence[Union[MarkdownContainer, str]], list of inner
+            elements
         sep: Union[MarkdownContainer, str], elements separator
         language: str, language to highlight in code block
 
@@ -536,8 +535,8 @@ class Code(MarkdownContainer):
 
     def __init__(
         self,
-        elements: List[Union[MarkdownContainer, str]],
-        sep: Union[MarkdownContainer, str] = '',
+        elements: Sequence[Union[MarkdownElement, str]],
+        sep: Union[MarkdownElement, str] = '',
         language: str = ''
     ):
         self.language = language
@@ -567,7 +566,7 @@ class TableRow(MarkdownContainer):
     Class for Markdown table row element
 
     Attributes:
-        elements: List[Union[MarkdownContainer, str]], table row elements
+        elements: Sequence[Union[MarkdownContainer, str]], table row elements
 
     Examples:
         Rendering table row
@@ -577,7 +576,7 @@ class TableRow(MarkdownContainer):
         1 | one
     """
 
-    def __init__(self, elements: List[Union[MarkdownContainer, str]]):
+    def __init__(self, elements: Sequence[Union[MarkdownElement, str]]):
         super().__init__(elements, sep=_TABLE_BORDER)
 
 
@@ -615,8 +614,8 @@ class Table(MarkdownContainer):
     def __init__(
         self,
         header: TableRow,
-        rows: list[TableRow],
-        orientation: (list[ColumnOrientation] | None) = None
+        rows: Sequence[TableRow],
+        orientation: Optional[Sequence[ColumnOrientation]] = None
     ):
         self.header = header
         self.orientation = orientation
@@ -640,7 +639,7 @@ class Table(MarkdownContainer):
         )
 
 
-class HTMLComment(MarkdownContainer):
+class HTMLComment(StringLiteral):
     """
     Class for HTML comment
 
@@ -661,7 +660,7 @@ class HTMLComment(MarkdownContainer):
         )
 
 
-class Raw(MarkdownContainer):
+class Raw(StringLiteral):
     """
     Class for raw text
     """
@@ -675,7 +674,7 @@ class Raw(MarkdownContainer):
         )
 
 
-class HTMLAnchor(MarkdownContainer):
+class HTMLAnchor(MarkdownElement):
     """
     Class for html anchor
     """
@@ -689,7 +688,7 @@ class HTMLAnchor(MarkdownContainer):
         )
 
 
-class Latex(MarkdownContainer):
+class Latex(StringLiteral):
     """
     Class for Latex formulas
     """

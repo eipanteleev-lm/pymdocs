@@ -6,7 +6,7 @@ from pymdocs.formatters.helpers import module_line_path_link
 from pymdocs.parsers.ast import FunctionDefinition
 
 
-class FunctionFormatter(BaseFormatter):
+class FunctionFormatter(BaseFormatter[FunctionDefinition]):
     """
     Formatter for FunctionDefinition objects
 
@@ -23,8 +23,8 @@ class FunctionFormatter(BaseFormatter):
 
     def format(
         self,
-        function_def: FunctionDefinition,
-        doc_path: str,
+        obj: FunctionDefinition,
+        doc_path: str = '',
         package_name: Optional[str] = None,
         module_name: Optional[str] = None,
         class_name: Optional[str] = None
@@ -33,7 +33,7 @@ class FunctionFormatter(BaseFormatter):
         Returns Markdown element for function definition
 
         Args:
-            function_def: FunctionDefinition, python function definition
+            obj: FunctionDefinition, python function definition
             doc_path: str, path to documentation file
             package_name: (str | None), name of the function package,
                 None by default
@@ -52,7 +52,7 @@ class FunctionFormatter(BaseFormatter):
                 package_name,
                 module_name,
                 class_name,
-                function_def.name
+                obj.name
             )
             if element is not None
         )
@@ -67,30 +67,46 @@ class FunctionFormatter(BaseFormatter):
                             [
                                 md.Italic([
                                     md.Quote(argument.name),
-                                    ': ',
-                                    md.Quote(argument.type.annotation)
+                                    md.MarkdownContainer(
+                                        [
+                                            ': ',
+                                            md.Quote(argument.type.annotation)
+                                        ]
+                                        if argument.type is not None
+                                        else []
+                                    )
                                 ])
-                                for argument in function_def.arguments
+                                for argument in obj.arguments
                             ],
                             ', '
                         ),
-                        ') -> ',
-                        md.Italic([function_def.returns.annotation]),
+                        ')',
+                        md.MarkdownContainer(
+                            [
+                                ' -> ',
+                                md.Italic([obj.returns.annotation])
+                            ]
+                            if obj.returns is not None
+                            else []
+                        ),
                         md.WHITESPACE,
                         module_line_path_link(
-                            function_def,
+                            obj,
                             '[source]',
                             doc_path
                         )
                     ]
                 ),
-                md.PARAGRAPH_BREAK,
-                (
-                    self.format_by(
-                        FormatterType.DOCSTRING,
-                        function_def.docstring
-                    )
-                    or ''
+                md.MarkdownContainer(
+                    [
+                        md.PARAGRAPH_BREAK,
+                        self.format_by(
+                            FormatterType.DOCSTRING,
+                            obj.docstring
+                        )
+                    ]
+                    if obj.docstring is not None
+                    else []
                 )
             ]
         )

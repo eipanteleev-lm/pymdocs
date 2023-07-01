@@ -1,8 +1,11 @@
 from enum import Enum
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, Generic, List, Optional, Tuple, TypeVar, Union
 
 import pymdocs.formatters.markdown_constructor as md
-from pymdocs.parsers.ast import AstWrapper
+from pymdocs.parsers.ast import ElementDefinition
+from pymdocs.parsers.docstring import Docstring
+
+T = TypeVar('T', bound=Union[ElementDefinition, Docstring])
 
 
 class FormatterType(int, Enum):
@@ -20,7 +23,7 @@ FORMATTERS_HIERARCHY: List[FormatterType] = list(
 )
 
 
-class BaseFormatter:
+class BaseFormatter(Generic[T]):
     """
     Base class for markdown formatters
 
@@ -35,7 +38,7 @@ class BaseFormatter:
 
     def _validate(
         self,
-        formatters: 'Optional[Dict[FormatterType, BaseFormatter]]'
+        formatters: Dict[FormatterType, Any]
     ):
         """
         Validates that all required formatters passed
@@ -51,20 +54,25 @@ class BaseFormatter:
 
     def __init__(
         self,
-        formatters: 'Optional[Dict[FormatterType, BaseFormatter]]' = None
+        formatters: Optional[Dict[FormatterType, Any]] = None
     ):
-        self.formatters = (formatters or [])
+        self.formatters = (formatters or {})
         self._validate(self.formatters)
 
-    def format(self, obj: AstWrapper, **kwargs) -> md.MarkdownContainer:
+    def format(
+        self,
+        obj: T
+    ) -> md.MarkdownElement:
         """Returns markdown representation for obj"""
+        return md.MarkdownElement()
 
     def format_by(
         self,
         formatter_type: FormatterType,
-        obj: AstWrapper,
-        **kwargs
-    ) -> md.MarkdownContainer:
+        obj: Any,
+        *args: Any,
+        **kwargs: Any
+    ) -> md.MarkdownElement:
         """
         Formats object by additional formatter
 
@@ -85,4 +93,4 @@ class BaseFormatter:
                 f'{formatter_type} formatter is not set'
             )
 
-        return formatter.format(obj, **kwargs)
+        return formatter.format(obj, *args, **kwargs)

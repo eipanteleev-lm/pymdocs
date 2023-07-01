@@ -1,15 +1,21 @@
 import ast
 import os
-from typing import List, Optional, Tuple, Union
+from typing import Generic, List, Optional, TypeVar, Union
 
 import pymdocs.parsers.docstring as doc
+
+T = TypeVar('T', bound=ast.AST)
 
 BINOPS = {
     ast.BitOr: '|'
 }
 
 
-class AstWrapper:
+class ElementDefinition:
+    """Base class for Python code structures"""
+
+
+class AstWrapper(ElementDefinition, Generic[T]):
     """
     Base class for Python AST element wrapper
 
@@ -18,20 +24,16 @@ class AstWrapper:
         path: str, path to file contains element
     """
 
-    _properties: Tuple[str, ...] = (
-        'lineno',
-    )
-
     def __init__(
         self,
-        ast_element: Optional[ast.AST],
+        ast_element: T,
         path: str
     ):
         self.ast_element = ast_element
         self.path = path
 
     @property
-    def lineno(self) -> Optional[int]:
+    def lineno(self) -> int:
         """
         Returns line number of the element in file
 
@@ -39,60 +41,20 @@ class AstWrapper:
             int, line number
         """
 
-        if self.ast_element is None:
-            return None
-
         return self.ast_element.lineno
-
-    def properties(self) -> dict:
-        """
-        Returns dict of object properties values
-        """
-
-        return {
-            property: self.__getattribute__(property)
-            for property in self._properties
-        }
-
-    def dict(self) -> dict:
-        """
-        Returns element dict representation (and all subelements recursively)
-        """
-        d = {}
-        for property in self._properties:
-            value = self.__getattribute__(property)
-            if isinstance(value, list):
-                d[property] = [
-                    (element if isinstance(element, str) else element.dict())
-                    for element in value
-                ]
-            else:
-                d[property] = (
-                    value
-                    if isinstance(value, (str, doc.Docstring))
-                    else value.dict()
-                )
-
-        return d
 
 
 class Typing(AstWrapper):
     """Class for Python typing annotations representation"""
-
-    _properties: Tuple[str, ...] = (
-        'annotation',
-    )
 
     @property
     def annotation(self) -> str:
         """
         Returns string representation of typing annotation
         """
-        if self.ast_element is None:
-            return 'Any'
         if isinstance(self.ast_element, ast.Name):
             return self.ast_element.id
-        if isinstance(self.ast_element, ast.Constant):
+        elif isinstance(self.ast_element, ast.Constant):
             return str(self.ast_element.value)
         elif isinstance(self.ast_element, ast.Subscript):
             value = Typing(self.ast_element.value, self.path).annotation
@@ -120,21 +82,8 @@ class Typing(AstWrapper):
         raise ValueError(f'Unknown annotation type: {self.ast_element}')
 
 
-class Argument(AstWrapper):
+class Argument(AstWrapper[ast.arg]):
     """Class for function argument representation"""
-
-    _properties: Tuple[str, ...] = (
-        'name',
-        'type'
-    )
-
-    def __init__(
-        self,
-        ast_element: ast.arg,
-        path: str
-    ):
-        self.ast_element = ast_element
-        self.path = path
 
     @property
     def name(self) -> str:
@@ -142,35 +91,23 @@ class Argument(AstWrapper):
         return self.ast_element.arg
 
     @property
-    def type(self) -> Typing:
+    def type(self) -> Optional[Typing]:
         """
         Returns typing annotation of function argument
 
         Returns: Typing, typing annotation
         """
+        if self.ast_element.annotation is None:
+            return None
+
         return Typing(
             self.ast_element.annotation,
             self.path
         )
 
 
-class FunctionDefinition(AstWrapper):
+class FunctionDefinition(AstWrapper[ast.FunctionDef]):
     """Class for function representation"""
-
-    _properties: Tuple[str, ...] = (
-        'name',
-        'arguments',
-        'returns',
-        'docstring'
-    )
-
-    def __init__(
-        self,
-        ast_element: ast.FunctionDef,
-        path: str
-    ):
-        self.ast_element = ast_element
-        self.path = path
 
     @property
     def name(self) -> str:
@@ -186,8 +123,11 @@ class FunctionDefinition(AstWrapper):
         ]
 
     @property
-    def returns(self) -> Typing:
+    def returns(self) -> Optional[Typing]:
         """Returns function return typing annotation"""
+        if self.ast_element.returns is None:
+            return None
+
         return Typing(
             self.ast_element.returns,
             self.path
@@ -203,24 +143,11 @@ class FunctionDefinition(AstWrapper):
                 if isinstance(potentional_docstring_value, ast.Constant):
                     return doc.parse(potentional_docstring_value.value)
 
+        return None
 
-class ClassDefinition(AstWrapper):
+
+class ClassDefinition(AstWrapper[ast.ClassDef]):
     """Class for Python class representation"""
-
-    _properties: Tuple[str, ...] = (
-        'name',
-        'inherits',
-        'methods',
-        'docstring'
-    )
-
-    def __init__(
-        self,
-        ast_element: ast.ClassDef,
-        path: str
-    ):
-        self.ast_element = ast_element
-        self.path = path
 
     @property
     def name(self) -> str:
@@ -246,6 +173,8 @@ class ClassDefinition(AstWrapper):
                 if isinstance(potentional_docstring_value, ast.Constant):
                     return doc.parse(potentional_docstring_value.value)
 
+        return None
+
     @property
     def methods(self) -> List[FunctionDefinition]:
         """Returns list of class methods"""
@@ -256,19 +185,8 @@ class ClassDefinition(AstWrapper):
         ]
 
 
-class ModuleDefinition(AstWrapper):
+class ModuleDefinition(AstWrapper[ast.Module]):
     """Class for Python module representation"""
-
-    _properties: Tuple[str, ...] = (
-        'name',
-        'classes',
-        'functions',
-        'docstring'
-    )
-
-    def __init__(self, ast_element: ast.Module, path: str):
-        self.ast_element = ast_element
-        self.path = path
 
     @property
     def name(self) -> str:
@@ -283,7 +201,9 @@ class ModuleDefinition(AstWrapper):
             if isinstance(potentional_docstring, ast.Expr):
                 potentional_docstring_value = potentional_docstring.value
                 if isinstance(potentional_docstring_value, ast.Constant):
-                    return parse(potentional_docstring_value.value)
+                    return doc.parse(potentional_docstring_value.value)
+
+        return None
 
     @property
     def classes(self) -> List[ClassDefinition]:
@@ -304,7 +224,7 @@ class ModuleDefinition(AstWrapper):
         ]
 
 
-class PackageDefinition(AstWrapper):
+class PackageDefinition(ElementDefinition):
     """Class for python package representation"""
 
     def __init__(
@@ -385,3 +305,5 @@ def parse(path: str) -> Optional[Union[PackageDefinition, ModuleDefinition]]:
                 packages=packages,
                 path=path
             )
+
+    return None

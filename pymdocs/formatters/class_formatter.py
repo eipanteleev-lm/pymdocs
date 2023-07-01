@@ -6,7 +6,7 @@ from pymdocs.formatters.helpers import module_line_path_link
 from pymdocs.parsers.ast import ClassDefinition
 
 
-class ClassFormatter(BaseFormatter):
+class ClassFormatter(BaseFormatter[ClassDefinition]):
     """
     Formatter for ClassDefinition objects
 
@@ -24,11 +24,11 @@ class ClassFormatter(BaseFormatter):
 
     def format(
         self,
-        class_def: ClassDefinition,
-        doc_path: str,
+        obj: ClassDefinition,
+        doc_path: str = '',
         package_name: Optional[str] = None,
         module_name: Optional[str] = None
-    ):
+    ) -> md.MarkdownElement:
         """
         Returns Markdown element for function definition
 
@@ -47,7 +47,7 @@ class ClassFormatter(BaseFormatter):
             for element in (
                 package_name,
                 module_name,
-                class_def.name
+                obj.name
             )
             if element is not None
         )
@@ -60,7 +60,7 @@ class ClassFormatter(BaseFormatter):
                     md.InlineCode([class_name]),
                     md.WHITESPACE,
                     module_line_path_link(
-                        class_def,
+                        obj,
                         '[source]',
                         doc_path
                     )
@@ -71,21 +71,24 @@ class ClassFormatter(BaseFormatter):
                         md.InlineCode(
                             [
                                 base
-                                for base in class_def.inherits
+                                for base in obj.inherits
                             ],
                             ', '
-                        )
-                    ] if class_def.inherits else []
+                        ),
+                        md.PARAGRAPH_BREAK
+                    ] if obj.inherits else []
                 ),
-                md.PARAGRAPH_BREAK,
-                (
-                    self.format_by(
-                        FormatterType.DOCSTRING,
-                        class_def.docstring
-                    )
-                    or ''
+                md.MarkdownContainer(
+                    [
+                        self.format_by(
+                            FormatterType.DOCSTRING,
+                            obj.docstring
+                        ),
+                        md.PARAGRAPH_BREAK
+                    ]
+                    if obj.docstring is not None
+                    else []
                 ),
-                md.PARAGRAPH_BREAK,
                 md.MarkdownContainer(
                     [
                         md.H4(['Methods']),
@@ -97,14 +100,14 @@ class ClassFormatter(BaseFormatter):
                                     doc_path=doc_path,
                                     package_name=package_name,
                                     module_name=module_name,
-                                    class_name=class_def.name
+                                    class_name=obj.name
                                 )
-                                for method in class_def.methods
+                                for method in obj.methods
                                 if not method.name.startswith('_')
                             ]
                         )
                     ]
-                    if class_def.methods else []
+                    if obj.methods else []
                 )
             ]
         )

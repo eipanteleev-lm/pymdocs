@@ -1,19 +1,18 @@
-from typing import Any, List, Optional
+from typing import Generic, List, Optional, TypeVar
+
+T = TypeVar('T', bound='DocstringElement')
 
 
 class DocstringElement:
     """Base class for docstring elements"""
 
-    def __init__(self):
-        ...
 
-
-class DocstringSection:
+class DocstringSection(Generic[T]):
     """Base class for docstring section"""
 
     def __init__(
         self,
-        attributes: List[Any]
+        attributes: List[T]
     ):
         self._attributes = attributes
 
@@ -39,16 +38,13 @@ class DocstringArg(DocstringElement):
         self.description = description
 
 
-class DocstringArgsSection(DocstringSection):
+class DocstringArgsSection(DocstringSection[DocstringArg]):
     """
     Class for docstring 'Args' section
 
     Attributes:
         attributes: List[DocstringArg], list of arguments
     """
-
-    def __init__(self, attributes: List[DocstringArg]):
-        super().__init__(attributes)
 
 
 class DocstringAttribute(DocstringElement):
@@ -71,20 +67,14 @@ class DocstringAttribute(DocstringElement):
         self.typing_annotation = typing_annotation
         self.description = description
 
-    def __repr__(self):
-        return f'{self.__name__}({self.name}, {self.typing_annotation})'
 
-
-class DocstringAttributesSection(DocstringSection):
+class DocstringAttributesSection(DocstringSection[DocstringAttribute]):
     """
     Class for docstring 'Attributes' section
 
     Attributes:
         attributes: List[DocstringAttribute], list of attributes
     """
-
-    def __init__(self, attributes: List[DocstringArg]):
-        super().__init__(attributes)
 
 
 class DocstringExample(DocstringElement):
@@ -95,20 +85,17 @@ class DocstringExample(DocstringElement):
         description: str, docstring example
     """
 
-    def __init__(self, description: Optional[str] = None):
+    def __init__(self, description: str):
         self.description = description
 
 
-class DocstringExamplesSection(DocstringSection):
+class DocstringExamplesSection(DocstringSection[DocstringExample]):
     """
     Class for docstring 'Examples' section
 
     Attributes:
         attributes: List[DocstringExample], list of docstring examples
     """
-
-    def __init__(self, attributes: List[DocstringExample]):
-        super().__init__(attributes)
 
 
 class DocstringRaises(DocstringElement):
@@ -124,20 +111,14 @@ class DocstringRaises(DocstringElement):
         self.exception = exception
         self.description = description
 
-    def __repr__(self):
-        return f'{self.__name__}({self.exception})'
 
-
-class DocstringRaisesSection(DocstringSection):
+class DocstringRaisesSection(DocstringSection[DocstringRaises]):
     """
     Class for docstring 'Raises' section
 
     Attributes:
         attributes: List[DocstringRaises], list of rasing exceptions
     """
-
-    def __init__(self, attributes: List[DocstringRaises]):
-        super().__init__(attributes)
 
 
 class DocstringReturns(DocstringElement):
@@ -157,20 +138,14 @@ class DocstringReturns(DocstringElement):
         self.typing_annotation = typing_annotation
         self.description = description
 
-    def __repr__(self):
-        return f'{self.__name__}({self.typing_annotation})'
 
-
-class DocstringReturnsSection(DocstringSection):
+class DocstringReturnsSection(DocstringSection[DocstringReturns]):
     """
     Class for docstring 'Returns' section
 
     Attributes:
         attributes: List[DocstringReturns], returning value description
     """
-
-    def __init__(self, attributes: List[DocstringReturns]):
-        super().__init__(attributes)
 
 
 class DocstringYiedls(DocstringElement):
@@ -190,20 +165,14 @@ class DocstringYiedls(DocstringElement):
         self.typing_annotation = typing_annotation
         self.description = description
 
-    def __repr__(self):
-        return f'{self.__name__}({self.typing_annotation})'
 
-
-class DocstringYiedlsSection(DocstringSection):
+class DocstringYiedlsSection(DocstringSection[DocstringYiedls]):
     """
     Class for docstring 'Yields' section
 
     Attributes:
         attributes: List[DocstringYields], yielding value description
     """
-
-    def __init__(self, attributes: List[DocstringYiedls]):
-        super().__init__(attributes)
 
 
 class Docstring(DocstringSection):

@@ -1,11 +1,9 @@
-from typing import Optional
-
 import pymdocs.formatters.markdown_constructor as md
 from pymdocs.formatters.base import BaseFormatter
 from pymdocs.parsers.docstring.base import Docstring
 
 
-class DocstringFormatter(BaseFormatter):
+class DocstringFormatter(BaseFormatter[Docstring]):
     """
     Formatter for ClassDefinition objects
 
@@ -18,8 +16,8 @@ class DocstringFormatter(BaseFormatter):
 
     def format(
         self,
-        docstring: Optional[Docstring]
-    ) -> Optional[md.MarkdownContainer]:
+        obj: Docstring
+    ) -> md.MarkdownContainer:
         """
         Returns Markdown element for function definition
 
@@ -27,17 +25,18 @@ class DocstringFormatter(BaseFormatter):
             docstring: Docstring, python docstring definition
 
         Returns:
-            (MarkdownContainer | None): Markdown element for docstring or None
+            MarkdownContainer: Markdown element for docstring or None
         """
-        if docstring is None:
-            return None
 
         return md.MarkdownContainer(
-            [
-                md.Paragraph([docstring.description]),
-            ] + ([
+            (
+                [
+                    md.Paragraph([obj.description]),
+                ]
+                if obj.description is not None else []
+            ) + ([
                 md.Paragraph([
-                    md.Bold('Args:'),
+                    md.Bold(['Args:']),
                     md.PARAGRAPH_BREAK,
                     md.UnorderedList([
                         md.MarkdownContainer([
@@ -54,12 +53,16 @@ class DocstringFormatter(BaseFormatter):
                             ),
                             ':',
                             md.WHITESPACE,
-                            arg.description
+                            md.StringLiteral(
+                                arg.description
+                                if arg.description is not None
+                                else ''
+                            )
                         ])
-                        for arg in docstring.args
+                        for arg in obj.args
                     ])
                 ])]
-                if docstring.args else []
+                if obj.args else []
             ) + ([
                 md.Paragraph([
                     md.Bold('Attributes:'),
@@ -77,14 +80,20 @@ class DocstringFormatter(BaseFormatter):
                                 if attribute.typing_annotation is not None
                                 else []
                             ),
-                            ':',
-                            md.WHITESPACE,
-                            attribute.description
+                            md.MarkdownContainer(
+                                [
+                                    ':',
+                                    md.WHITESPACE,
+                                    attribute.description
+                                ]
+                                if attribute.description is not None
+                                else []
+                            )
                         ])
-                        for attribute in docstring.attributes
+                        for attribute in obj.attributes
                     ])
                 ])]
-                if docstring.attributes else []
+                if obj.attributes else []
             ) + ([
                 md.Paragraph([
                     md.Bold('Raises:'),
@@ -92,14 +101,20 @@ class DocstringFormatter(BaseFormatter):
                     md.UnorderedList([
                         md.MarkdownContainer([
                             md.InlineCode([raises.exception]),
-                            ':',
-                            md.WHITESPACE,
-                            raises.description
+                            md.MarkdownContainer(
+                                [
+                                    ':',
+                                    md.WHITESPACE,
+                                    raises.description
+                                ]
+                                if raises.description is not None
+                                else []
+                            )
                         ])
-                        for raises in docstring.raises
+                        for raises in obj.raises
                     ])
                 ])]
-                if docstring.raises else []
+                if obj.raises else []
             ) + ([
                 md.Paragraph([
                     md.Bold('Returns:'),
@@ -107,14 +122,20 @@ class DocstringFormatter(BaseFormatter):
                     md.MarkdownContainer([
                         md.MarkdownContainer([
                             md.InlineCode([returns.typing_annotation]),
-                            ':',
-                            md.WHITESPACE,
-                            returns.description
+                            md.MarkdownContainer(
+                                [
+                                    ':',
+                                    md.WHITESPACE,
+                                    returns.description
+                                ]
+                                if returns.description is not None
+                                else []
+                            )
                         ])
-                        for returns in docstring.returns
+                        for returns in obj.returns
                     ])
                 ])]
-                if docstring.returns else []
+                if obj.returns else []
             ) + ([
                 md.Paragraph([
                     md.Bold('Yields:'),
@@ -122,23 +143,29 @@ class DocstringFormatter(BaseFormatter):
                     md.MarkdownContainer([
                         md.MarkdownContainer([
                             md.InlineCode([yields.typing_annotation]),
-                            ':',
-                            md.WHITESPACE,
-                            yields.description
+                            md.MarkdownContainer(
+                                [
+                                    ':',
+                                    md.WHITESPACE,
+                                    yields.description
+                                ]
+                                if yields.description is not None
+                                else []
+                            )
                         ])
-                        for yields in docstring.yields
+                        for yields in obj.yields
                     ])
                 ])]
-                if docstring.yields else []
+                if obj.yields else []
             ) + ([
                 md.Paragraph([
                     md.Bold('Examples:'),
                     md.PARAGRAPH_BREAK,
                     md.MarkdownContainer([
-                        md.Raw([example.description])
-                        for example in docstring.examples
+                        md.Raw(example.description)
+                        for example in obj.examples
                     ])
                 ])]
-                if docstring.examples else []
+                if obj.examples else []
             )
         )

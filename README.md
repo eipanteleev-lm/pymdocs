@@ -1,3 +1,5 @@
+![Workflow Badge](https://github.com/eipanteleev-lm/pymdocs/actions/workflows/python-app.yml/badge.svg)
+
 # pymdocs
 
 A simple package to generate Code Reference from source in Markdown

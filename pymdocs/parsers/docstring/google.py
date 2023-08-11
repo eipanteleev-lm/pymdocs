@@ -1,6 +1,6 @@
 import inspect
 import re
-from enum import StrEnum
+from enum import Enum
 from typing import Dict
 
 from pymdocs.parsers.docstring.base import (
@@ -22,7 +22,7 @@ from pymdocs.parsers.docstring.base import (
 from pymdocs.parsers.docstring.helpers import iter_split
 
 
-class DocstringSections(StrEnum):
+class DocstringSections(str, Enum):
     ARGS = 'Args'
     ATTRIBUTES = 'Attributes'
     EXAMPLES = 'Examples'
